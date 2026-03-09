@@ -1,0 +1,49 @@
+# Node Modules
+node_modules/
+
+# Build Output
+dist/
+
+# Local data
+local/
+
+# GitHub
+scripts/*
+!scripts/send-test.sh
+
+# Deployment Artifacts
+*.zip
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# AWS Credentials (DO NOT TRACK!)
+.aws/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+
+# AWS CDK/Terraform/Serverless Framework
+.cdk.out/
+.terraform/
+.serverless/
+
+# IDE Specific (VSCode, JetBrains, etc.)
+.vscode/
+.idea/
+*.swp
+
+# DynamoDB Local
+dynamodb-local/
+dynamodb-local/**/*
+*.db
+
+# test coverage
+coverage/

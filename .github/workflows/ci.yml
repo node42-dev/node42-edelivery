@@ -1,0 +1,47 @@
+name: CI and Coverage
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npx --no-install eslint src
+
+      - name: Run tests with coverage
+        run: npm run test:coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+
+      - name: Slack notify on failure
+        if: failure()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.ALERT_SLACK_GITHUB_ACTIONS }}
+          SLACK_COLOR: "#ff3333"
+          SLACK_USERNAME: Node42 GitHub Bot
+          SLACK_ICON_EMOJI: ":warning:"
+          SLACK_TITLE: "Node42 CI Pipeline"
+          SLACK_MESSAGE: "CI workflow failed on ${{ github.ref }} by ${{ github.actor }}"

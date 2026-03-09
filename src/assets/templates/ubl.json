@@ -1,0 +1,44 @@
+{
+    "document_type" : "urn:oasis:names:specification:ubl:schema:xsd:Invoice-2::Invoice##urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0::2.1",
+    "process_id" : "urn:fdc:peppol.eu:2017:poacc:billing:01:1.0",
+    "seller": {
+        "name": "Test Sender",
+        "endpoint_scheme": "0007",
+        "street": "Sender Street 1",
+        "city": "Stockholm",
+        "zip": "11122",
+        "vat": "SE556677889901",
+        "company_id": "5566778899"
+    },
+    "buyer": {
+        "name": "Test Receiver",
+        "endpoint_scheme": "9915",
+        "street": "Receiver Street 1",
+        "city": "Brussels",
+        "zip": "1000",
+        "country": "BE",
+        "company_id": "helger"
+    },
+    "invoice": {
+        "currency": "EUR",
+        "payment_means": "30",
+        "items": [
+            {
+                "name": "Consulting Services",
+                "quantity": 2,
+                "unit": "HUR",
+                "unit_price": "100.00",
+                "net_amount": "200.00",
+                "vat_percent": 25
+            },
+            {
+                "name": "Software License",
+                "quantity": 1,
+                "unit": "EA",
+                "unit_price": "50.00",
+                "net_amount": "50.00",
+                "vat_percent": 25
+            }
+        ]
+    }
+}

@@ -1,0 +1,79 @@
+{
+  "name": "@n42/edelivery",
+  "version": "0.1.78",
+  "description": "Node42's pure Node.js eDelivery toolkit — SMP lookup, document validation and AS4 signing, encryption and sending. No Java, no third-party AP dependencies.",
+  "keywords": [
+    "peppol",
+    "as4",
+    "ebms3",
+    "e-invoice",
+    "ubl",
+    "edelivery",
+    "smp",
+    "wssecurity"
+  ],
+  "homepage": "https://github.com/node42-dev/node42-edelivery",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node42-dev/node42-edelivery.git"
+  },
+  "license": "Apache-2.0",
+  "author": "Node42 @n42",
+  "type": "module",
+  "bin": {
+    "n42-edelivery": "./dist/n42-edelivery.cjs"
+  },
+  "main": "./dist/n42-edelivery.cjs",
+  "scripts": {
+    "lint": "eslint src",
+    "test": "node --test test/*.test.js",
+    "test:watch": "node --test --watch test/*.test.js",
+    "test:coverage": "c8 --reporter=text-summary --reporter=lcov node --test test/*.test.js",
+    "start": "node dist/n42-edelivery",
+    "build": "esbuild src/cli.js --bundle --platform=node --format=cjs --outfile=dist/n42-edelivery.cjs --define:import.meta.url=__filename --banner:js='#!/usr/bin/env node' && mkdir -p dist/assets dist/completion && cp -rf src/assets/* dist/assets && cp -rf src/completion/* dist/completion",
+    "prepublishOnly": "npm run build"
+  },
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "c8": {
+    "exclude": [
+      "src/cli/**",
+      "src/completion/**",
+      "src/core/**",
+      "!src/core/db.js",
+      "!src/core/error.js"
+    ]
+  },
+  "peerDependencies": {
+    "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/credential-provider-ini": "^3",
+    "@aws-sdk/lib-dynamodb": "^3"
+  },
+  "peerDependenciesMeta": {
+    "@aws-sdk/client-dynamodb": { "optional": true },
+    "@aws-sdk/credential-provider-ini": { "optional": true },
+    "@aws-sdk/lib-dynamodb": { "optional": true }
+  },
+  "dependencies": {
+    "@xmldom/xmldom": "^0.9.4",
+    "commander": "^12.1.0",
+    "dotenv": "^17.3.1",
+    "hi-base32": "^0.5.1",
+    "node-fetch": "^3.3.2",
+    "saxon-js": "^2.7.0",
+    "xml-crypto": "^6.1.2",
+    "xml-formatter": "^3.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "c8": "^11.0.0",
+    "esbuild": "^0.27.3",
+    "eslint": "^10.0.2",
+    "globals": "^17.4.0"
+  }
+}
