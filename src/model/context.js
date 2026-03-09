@@ -39,6 +39,7 @@ export class N42Context {
     this.origReceiverCert = opts.origReceiverCert ?? null;
     this.endpointUrl      = opts.endpointUrl      ?? null;
     this.origEndpointUrl  = opts.origEndpointUrl  ?? null;
+    this.signalMessage    = opts.signalMessage    ?? null;
     this.hostname         = opts.hostname         ?? null;
     this.stripSbdh        = opts.stripSbdh        ?? null;
     this.dryrun           = opts.dryrun           ?? false;

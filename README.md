@@ -103,7 +103,7 @@ Send a Peppol UBL document via AS4.
 | `--strip-sbdh`     | Strip SBDH and re-wrap using provided context        |
 | `--dryrun`         | Prepare and resolve but do not transmit              |
 | `--persist`        | Persist transaction data to disk                     |
-| `--verbose`        | Enable detailed debug logging                        |
+| `--verbose`        | Enable detailed output                               |
 
 ### `validate peppol`
 
@@ -114,7 +114,7 @@ Validate a Peppol UBL document against schematron rules.
 | `--document`    | Path to UBL XML document *(required)*      |
 | `--schematron`  | Path to schematron XSL files               |
 | `--persist`     | Persist validation errors to disk          |
-| `--verbose`     | Enable detailed debug logging              |
+| `--verbose`     | Enable detailed output                     |
 
 ### `report peppol`
 

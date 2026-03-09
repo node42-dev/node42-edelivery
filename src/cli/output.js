@@ -180,7 +180,7 @@ export function printArtefacts(context) {
   console.log();
 }
 
-export function printCertInfo(certDetails, keyDetails = null, truststoreDetails = null) {
+export function printCertInfo(certDetails, keyDetails = null, truststoreDetails = null, verbose = false) {
   const certExpiry = certDetails.expired
     ? c(C.RED,    `✗ expired`)
     : certDetails.expiringSoon
@@ -233,22 +233,24 @@ export function printCertInfo(certDetails, keyDetails = null, truststoreDetails 
     section('Truststore');
     row('Roots', `${truststoreDetails.count} certificate${truststoreDetails.count !== 1 ? 's' : ''}`);
     
-    divider();
+    if (verbose) {
+      divider();
 
-    truststoreDetails.certs.forEach((cert, i) => {
-       const caExpiry = cert.expired
-        ? c(C.RED,    `✗ expired`)
-        : cert.expiringSoon
-          ? c(C.YELLOW, `⚠ ${cert.daysLeft} days left`)
-          : c(C.DARK_GREEN, `✓ ${cert.daysLeft} days left`);
+      truststoreDetails.certs.forEach((cert, i) => {
+        const caExpiry = cert.expired
+          ? c(C.RED,    `✗ expired`)
+          : cert.expiringSoon
+            ? c(C.YELLOW, `⚠ ${cert.daysLeft} days left`)
+            : c(C.DARK_GREEN, `✓ ${cert.daysLeft} days left`);
 
-      subSection(`Root CA #${i + 1}`);
-      row('CN',          cert.cn);
-      row('Valid From',  cert.validFrom);
-      row('Valid To',    cert.validTo);
-      row('Status',      caExpiry);
-      row('Fingerprint', cert.fingerprint, C.DIM);
-    });
+        subSection(`Root CA #${i + 1}`);
+        row('CN',          cert.cn);
+        row('Valid From',  cert.validFrom);
+        row('Valid To',    cert.validTo);
+        row('Status',      caExpiry);
+        row('Fingerprint', cert.fingerprint, C.DIM);
+      });
+    }
   }
 
   console.log();
@@ -260,4 +262,31 @@ export function printCertInfo(certDetails, keyDetails = null, truststoreDetails 
   row('Truststore', truststoreDetails.path, C.DIM);
 
   console.log();
+}
+
+export function printSignalMessage(context) {
+  const signal = context.signalMessage;
+  
+  const W = 60;
+  let out = '';
+  out += `  ${c(C.BLUE, '── AS4 Signal ' + '─'.repeat(W - 6))}\n`;
+  out += `  ${c(C.BOLD, 'messageId'.padEnd(16))} ${c(C.GRAY, signal.messageId ?? '-')}\n`;
+  out += `  ${c(C.BOLD, 'refTo'.padEnd(16))} ${c(C.GRAY, signal.refToMessageId ?? '-')}\n`;
+  out += `  ${c(C.BOLD, 'timestamp'.padEnd(16))} ${c(C.GRAY, signal.timestamp ?? '-')}\n`;
+  out += `  ${c(C.BOLD, 'receipt'.padEnd(16))} ${c(C.GRAY, signal.isReceipt ? 'yes' : 'no')}\n`;
+
+  if (signal.errors?.length) {
+    out += `\n  ${c(C.RED, '── Errors ' + '─'.repeat(W - 2))}\n`;
+    for (const e of signal.errors) {
+      if (e.errorCode) {
+        out += `  ${c(C.BOLD, 'code'.padEnd(16))} ${c(C.RED, e.errorCode)}\n`;
+      }
+      out += `  ${c(C.BOLD, 'severity'.padEnd(16))} ${c(C.GRAY, e.severity   ?? '-')}\n`;
+      out += `  ${c(C.BOLD, 'category'.padEnd(16))} ${c(C.GRAY, e.category   ?? '-')}\n`;
+      out += `  ${c(C.BOLD, 'description'.padEnd(16))} ${c(C.GRAY, e.description ?? '-')}\n`;
+      out += `  ${c(C.BOLD, 'detail'.padEnd(16))} ${c(C.GRAY, e.detail     ?? '-')}\n`;
+    }
+  }
+
+  console.log(out);
 }

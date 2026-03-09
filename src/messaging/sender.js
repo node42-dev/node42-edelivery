@@ -18,7 +18,7 @@ import { stripSbdh, wrapInSbdh }             from '../document/ubl.js';
 import { validateDocument }                  from '../document/validator.js';
 import { getCertCommonName, validateCert }   from '../security/pki.js';
 import { N42ErrorCode, N42Error }            from '../core/error.js';
-import { printPreflight, waitForConfirm }    from '../cli/preflight.js';
+import { printPreflight, waitForConfirm }    from '../cli/output.js';
 import { c, C }                              from '../cli/color.js' 
 
 import { 
@@ -259,7 +259,7 @@ export async function sendDocument(context, document) {
   if (context.dryrun) return { body, headers, context };
 
   await waitForConfirm();
-  await sendAs4Message(context, headers, body);
+  context.signalMessage = await sendAs4Message(context, headers, body);
 
   return context;
 }

@@ -35,10 +35,11 @@ import {
 } from './security/pki.js';
 
 import { 
+  printHeader,
   printArtefacts,
-  printCertInfo,
-  printHeader 
-} from './cli/preflight.js';
+  printSignalMessage,
+  printCertInfo
+} from './cli/output.js';
 
 import {
   initWorkspace, 
@@ -92,11 +93,13 @@ export function registerCommands(program) {
 
     program
     .command("pki")
+    .option('-v, --verbose', 'Enable detailed output')
     .description("Display PKI configuration — certificate, private key and truststore\nused for AS4 signing, encryption and peer validation")
-    .action(() => {
+    .action((opts) => {
         const spinner = new Spinner();
         const context = new N42Context({
-            spinner 
+            spinner, 
+            verbose: opts.verbose   ?? false,
         });
         
         const certsDir = getUserCertsDir();
@@ -123,7 +126,7 @@ export function registerCommands(program) {
             const keyDetails = getKeyDetails(context);
             const truststoreDetails = getTruststoreDetails(context);
 
-            printCertInfo(certDetails, keyDetails, truststoreDetails);
+            printCertInfo(certDetails, keyDetails, truststoreDetails, context.verbose);
         }
         catch(e) {
            handleError(e);
@@ -282,8 +285,8 @@ export function registerCommands(program) {
     const peppolSend = sendCmd.command('peppol').description('Send a Peppol UBL document via AS4');
 
     peppolSend
-    .option('--env <env>',            'Target environment: prod or test', 'test')
-    .option('--document <path>',      'Path to UBL XML document')
+    .option('-e, --env <env>',        'Target environment: prod or test', 'test')
+    .option('-d, --document <path>',  'Path to UBL XML document')
     .option('--ubl <path>',           'Path to UBL document descriptor')
     .option('--schematron <xsl...>',  'Schematron XSL files for validation')
     .option('--cert-id <uuid>',       'Probe certificate ID')
@@ -298,8 +301,8 @@ export function registerCommands(program) {
     .option('--hostname <host>',      'Hostname for message IDs')
     .option('--strip-sbdh',           'Strip and re-wrap existing SBDH')
     .option('--dryrun',               'Prepare but do not transmit')
-    .option('--persist',              'Persist transaction data to disk')
-    .option('--verbose, -v',          'Enable verbose debug logging')
+    .option('-p, --persist',          'Persist transaction data to disk')
+    .option('-v, --verbose',          'Enable detailed output')
     .action(async (opts) => {
         const spinner = new Spinner();
         const context = new N42Context({
@@ -359,13 +362,21 @@ export function registerCommands(program) {
             await sendDocument(context, document);
             console.log();
 
+            if (context.signalMessage) {
+                printSignalMessage(context);
+            }
+
             if (context.persist) {
                 printArtefacts(context);
             }
         } 
         catch (e) {
-            handleError(e);
-            process.exit(1);
+            if (context.signalMessage) {
+                printSignalMessage(context);
+            } else {
+                handleError(e);
+                process.exit(1);
+            }
         }
     });
 
@@ -376,9 +387,9 @@ export function registerCommands(program) {
 
     peppolValidate
     .requiredOption('--document <path>', 'Path to UBL XML document')
-    .option('--schematron <xsl...>',    'Schematron XSL files')
-    .option('--persist',                'Persist validation errors to disk')
-    .option('--verbose, -v',            'Verbose logging')
+    .option('--schematron <xsl...>',     'Schematron XSL files')
+    .option('-p, --persist',             'Persist validation errors to disk')
+    .option('-v, --verbose',             'Enable detailed output')
     .action(async (opts) => {
         const spinner = new Spinner();
         const context = new N42Context({
