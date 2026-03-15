@@ -1,17 +1,19 @@
-
 /*
   Author: Alex Olsson
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import { getDbFile } from '../cli/paths.js';
 
-import { createSenderJsonFileAdapter } from './adapters/sender.jsondb.js';
-import { createSenderDynamoDbAdapter } from './adapters/sender.ddb.js';
-import { createReceiverDynamoDbAdapter } from './adapters/receiver.ddb.js';
+import { createSenderJsonFileAdapter } from './adapters/sender.json.db.js';
+import { createSenderDynamoDbAdapter } from './adapters/sender.dynamo.db.js';
+import { createSenderCosmosDbAdapter } from './adapters/sender.cosmos.db.js';
+
+import { createReceiverDynamoDbAdapter } from './adapters/receiver.dynamo.db.js';
+import { createReceiverCosmosDbAdapter } from './adapters/receiver.cosmos.db.js';
 
 import { 
   N42Error, 
@@ -21,6 +23,15 @@ import {
 
 function createSenderDefaultAdapter() {
   return createSenderJsonFileAdapter(getDbFile());
+}
+
+async function isCosmosDbAvailable() {
+  try {
+    const { CosmosClient } = await import('@azure/cosmos');
+    return { CosmosClient };
+  } catch {
+    throw new N42Error(N42ErrorCode.MODULE_NOT_FOUND, { details: "CosmosDB adapter requires Azure SDK — run: npm install @azure/cosmos" });
+  }
 }
 
 async function isDynamoDbAvailable() {
@@ -37,46 +48,92 @@ async function isDynamoDbAvailable() {
     return { DynamoDBClient, DynamoDBDocumentClient, fromIni }
 }
 
-export async function getDbAdapter() {
-  const procEnvDb = process.env.N42_DB_ADAPTER;
+export async function getDbAdapter(context) {
+  const procEnvDb = context.runtimeEnv.get('N42_DB_ADAPTER');
   switch(procEnvDb) {
-    case 'receiver-dynamodb': {
+    case 'receiver-azure-cosmos-db': {
+      const { CosmosClient } = await isCosmosDbAvailable();
+
+      try {
+        const endpoint = context.runtimeEnv.get('COSMOS_ENDPOINT');
+        const key      = context.runtimeEnv.get('COSMOS_KEY');
+        const database = context.runtimeEnv.get('COSMOS_DATABASE') ?? 'n42';
+
+        const client = new CosmosClient({ endpoint, key });
+        return await createReceiverCosmosDbAdapter(client, database);
+      }
+      catch(e) {
+        throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });
+      }
+    }
+
+    case 'sender-azure-cosmos-db': {
+      const { CosmosClient } = await isCosmosDbAvailable();
+
+      try {
+        const endpoint = context.runtimeEnv.get('COSMOS_ENDPOINT');
+        const key      = context.runtimeEnv.get('COSMOS_KEY');
+        const database = context.runtimeEnv.get('COSMOS_DATABASE') ?? 'n42';
+
+        const client = new CosmosClient({ endpoint, key });
+        return await createReceiverCosmosDbAdapter(client, database);
+      }
+      catch(e) {
+        throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });
+      }
+    }
+
+    case 'receiver-aws-dynamo-db': {
       const { DynamoDBClient, DynamoDBDocumentClient, fromIni } = await isDynamoDbAvailable();
     
       try {
-        const isLocal = process.env.AWS_EXECUTION_ENV === undefined;
+        const isLocal = context.runtimeEnv.platform === null;
+        const hasAccessKey = context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY') !== undefined;
         const client  = new DynamoDBClient({
-          region: process.env.AWS_REGION ?? 'eu-north-1',
-          ...(isLocal && {
-            credentials: fromIni({ profile: process.env.AWS_PROFILE }),
+          region: context.runtimeEnv.get('AWS_REGION') ?? 'eu-north-1',
+          ...(!hasAccessKey && isLocal && {
+            credentials: fromIni({ profile: context.runtimeEnv.get('AWS_PROFILE') }),
+          }),
+          ...(hasAccessKey && {
+            credentials: {
+              accessKeyId: context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY'),
+              secretAccessKey: context.runtimeEnv.get('CLOUD_AWS_SECRET_KEY'),
+            },
           }),
         });
-        return createReceiverDynamoDbAdapter(DynamoDBDocumentClient.from(client));
+        return await createReceiverDynamoDbAdapter(DynamoDBDocumentClient.from(client));
       }
       catch(e) {
         throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message }); 
       }
     }
 
-    case 'sender-dynamodb': {
+    case 'sender-aws-dynamo-db': {
       const { DynamoDBClient, DynamoDBDocumentClient, fromIni } = await isDynamoDbAvailable();
 
       try {
-        const isLocal = process.env.AWS_EXECUTION_ENV === undefined;
+        const isLocal = context.runtimeEnv.platform === null;
+        const hasAccessKey = context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY') !== undefined;
         const client  = new DynamoDBClient({
-          region: process.env.AWS_REGION ?? 'eu-north-1',
-          ...(isLocal && {
-            credentials: fromIni({ profile: process.env.AWS_PROFILE }),
+          region: context.runtimeEnv.get('AWS_REGION') ?? 'eu-north-1',
+          ...(!hasAccessKey && isLocal && {
+            credentials: fromIni({ profile: context.runtimeEnv.get('AWS_PROFILE') }),
+          }),
+          ...(hasAccessKey && {
+            credentials: {
+              accessKeyId: context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY'),
+              secretAccessKey: context.runtimeEnv.get('CLOUD_AWS_SECRET_KEY'),
+            },
           }),
         });
-        return createSenderDynamoDbAdapter(DynamoDBDocumentClient.from(client), process.env.N42_DB_TABLE);
+        return await createSenderDynamoDbAdapter(DynamoDBDocumentClient.from(client), context.runtimeEnv.get('N42_DB_TABLE'));
       }
       catch {
         return createSenderDefaultAdapter();
       }
     }
 
-    case 'sender-jsondb': {
+    case 'sender-json-db': {
       return createSenderJsonFileAdapter(getDbFile());
     }
     

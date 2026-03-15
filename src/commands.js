@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import fs    from 'fs';
@@ -11,6 +11,7 @@ import path  from 'path';
 
 import { N42Timer }          from './cli/timer.js';
 import { N42Context }        from './model/context.js';
+import { N42Environment }    from './model/environment.js';
 import { Spinner }           from './cli/spinner.js';
 import { c, C }              from './cli/color.js';
 import { buildDocument }     from './document/ubl.js';
@@ -61,6 +62,7 @@ import {
   handleError 
 } from './core/error.js';
 
+const runtimeEnv = new N42Environment();
 const timer = new N42Timer();
 
 /**
@@ -102,6 +104,7 @@ export function registerCommands(program) {
         const context = new N42Context({
             spinner, 
             verbose: opts.verbose   ?? false,
+            runtimeEnv,
         });
         
         const certsDir = getUserCertsDir();
@@ -169,6 +172,7 @@ export function registerCommands(program) {
             const context = JSON.parse(fs.readFileSync(contextFile));
                     context.spinner = new Spinner();
                     context.persist = true;
+                    context.runtimeEnv = runtimeEnv;
             
             spinner.done('Loaded Context');
 
@@ -224,7 +228,8 @@ export function registerCommands(program) {
     .action(async (schPath) => {
         const spinner = new Spinner();
         const context = new N42Context({
-            spinner 
+            spinner,
+            runtimeEnv, 
         });
 
         console.log(`${c(C.BOLD, "Convert schematron")}: ${path.basename(schPath)}\n`)
@@ -249,7 +254,8 @@ export function registerCommands(program) {
     .action(async (options) => {
         const spinner = new Spinner();
         const context = new N42Context({
-            spinner 
+            spinner,
+            runtimeEnv, 
         });
 
         try {
@@ -335,6 +341,7 @@ export function registerCommands(program) {
             persist:       opts.persist   ?? false,
             verbose:       opts.verbose   ?? false,
             spinner,
+            runtimeEnv,
         });
 
         printHeader('Node42 — eDelivery');
@@ -417,6 +424,7 @@ export function registerCommands(program) {
             persist:    opts.persist ?? false,
             verbose:    opts.verbose ?? false,
             spinner,
+            runtimeEnv,
         });
 
         const fileName = path.basename(context.document);

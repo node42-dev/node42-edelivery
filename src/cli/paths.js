@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import fs   from 'fs';
@@ -15,9 +15,11 @@ import { Spinner }    from '../cli/spinner.js';
 import { c, C }       from './color.js';
 
 import { fileURLToPath } from 'url';
-const __dirname = path.dirname(import.meta.url.startsWith('file:') 
+const __dirname = typeof import.meta.url !== 'undefined' && import.meta.url
+  ? path.dirname(import.meta.url.startsWith('file:') 
   ? fileURLToPath(import.meta.url) 
-  : import.meta.url);
+  : import.meta.url)
+  : '/';
 
 export const getN42Home = () => path.join(os.homedir(), '.node42');
 

@@ -90,6 +90,24 @@ export async function verifyAs4Signature(envelope, _attachment) {
     
     let verified;
     try {
+
+      const keyData = cert.publicKey.export({ type: 'spki', format: 'der' });
+      const cryptoKey = await crypto.subtle.importKey(
+        'spki',
+        keyData,
+        { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+        false,
+        ['verify']
+      );
+
+      verified = await crypto.subtle.verify(
+        'RSASSA-PKCS1-v1_5',
+        cryptoKey,
+        signatureBytes,
+        Buffer.from(signedInfoC14n, 'utf-8')
+      );
+      
+      /*
       verified = crypto.verify(
         'sha256',
         Buffer.from(signedInfoC14n, 'utf-8'),
@@ -99,6 +117,7 @@ export async function verifyAs4Signature(envelope, _attachment) {
         },
         signatureBytes
       );
+      */
     } catch(e) {
       return { valid: false, error: `Signature verification failed: ${e.message}` };
     }
@@ -107,7 +126,7 @@ export async function verifyAs4Signature(envelope, _attachment) {
       return { valid: false, error: 'Invalid signature on SignedInfo' };
     }
     
-    console.log('✓ SignedInfo signature valid');
+    console.log('✓ SignedInfo signature: VALID');
     
     // Step 4: Verify digest references
     // Each Reference in SignedInfo contains a digest that must match
@@ -154,7 +173,7 @@ export async function verifyAs4Signature(envelope, _attachment) {
       return { valid: false, error: 'Body digest mismatch' };
     }
     
-    console.log('✓ Body digest valid');
+    console.log('✓ Body digest: VALID');
     
     // Verify Messaging digest
     const messaging = envelope.getElementsByTagNameNS(EBMS_NS, 'Messaging')[0];
@@ -167,7 +186,7 @@ export async function verifyAs4Signature(envelope, _attachment) {
       return { valid: false, error: 'Messaging digest mismatch' };
     }
     
-    console.log('✓ Messaging digest valid');
+    console.log('✓ Messaging digest: VALID');
     
     // Verify Attachment digest
     // Note: This is the digest of the COMPRESSED (gzipped) content,

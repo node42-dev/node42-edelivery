@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import { 
@@ -38,52 +38,47 @@ export async function createReceiverDynamoDbAdapter(client) {
   }
 
   async function insert(collection, item) {
-    switch(collection) {
-      case 'Transactions': {
-          try {
-            await send(new PutCommand({
-              TableName: collection,
-              Item: item,
-            }));
-            
-            console.log('✓ Transaction stored to DynamoDB: ', item.id);
-          } 
-          catch(e) {
-              console.error('DynamoDB storage failed:', e);
-              throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });  
-          }
-          break;
-        }
-      }
-    }
-    
-    async function getAll(_collection) {
-       throw new N42Error(N42ErrorCode.NOT_IMPLEMENTED, { details: 'getAll()' });   
-    }
-
-    async function getOne(collection, key, value) {
-      const result = await send(new GetCommand({
+    try {
+      await send(new PutCommand({
         TableName: collection,
-        Key: {
-          PK: key,
-          SK: value
-        }
+        Item: item,
       }));
       
-      if (!result.Item) {
-        throw new N42Error(
-          N42ErrorCode.STORAGE_ITEM_NOT_FOUND,
-          { details: `Item not found: ${key}=${value}` },
-          { retryable: false }
-        );
-      }
+      console.log('✓ Stored item to DynamoDB: ', item.id);
+    } 
+    catch(e) {
+        console.error('DynamoDB storage failed:', e);
+        throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });  
+    }
+  }
     
-      return result.Item;
+  async function getAll(_collection) {
+    throw new N42Error(N42ErrorCode.NOT_IMPLEMENTED, { details: 'getAll()' });   
+  }
+
+  async function getOne(collection, key, value) {
+    const result = await send(new GetCommand({
+      TableName: collection,
+      Key: {
+        PK: key,
+        SK: value
+      }
+    }));
+    
+    if (!result.Item) {
+      throw new N42Error(
+        N42ErrorCode.STORAGE_ITEM_NOT_FOUND,
+        { details: `Item not found: ${key}=${value}` },
+        { retryable: false }
+      );
     }
-   
-    return {
-        insert,
-        getAll,
-        getOne
-    }
+  
+    return result.Item;
+  }
+  
+  return {
+      insert,
+      getAll,
+      getOne
+  }
 }

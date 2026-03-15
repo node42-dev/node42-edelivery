@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import { C, c } from '../../cli/color.js';
@@ -12,6 +12,7 @@ import {
   N42Error, 
   N42ErrorCode 
 } from '../../core/error.js';
+
 
 /**
  * DynamoDB adapter for the n42 db layer.
@@ -26,8 +27,6 @@ import {
  *   Items must have both GSI1PK and GSI1SK set to appear in the index.
  *   These are set automatically by insert/upsert/update/replace when item.participantId is present.
  */
-
-// TODO: Remove once confirmed working. <a1exnd3r 2026-03-08 d:2026-05-08 p:1>
 export async function createSenderDynamoDbAdapter(client, tableName) {
   let commands;
   try { commands = await import('@aws-sdk/lib-dynamodb'); } 

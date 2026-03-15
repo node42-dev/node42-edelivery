@@ -4,8 +4,13 @@
 
 # Node42 eDelivery
 
-**Pure Node.js Peppol AS4 Sender & Toolkit** \
-Intended for interoperability testing, validation, troubleshooting, and controlled AS4 message transmission (e.g., dispatching UBL documents).
+**Pure Node.js Peppol AS4 Sender, Receiver & Toolkit**
+
+- **Local CLI** — interoperability testing, validation, troubleshooting, and controlled AS4 message transmission
+
+- **Cloud Sender** — deploy to **AWS** Lambda, **Azure** Functions, or **Cloudflare** Workers to send Peppol AS4 messages
+
+- **Cloud Receiver** — deploy to **AWS** Lambda, **Azure** Functions, or **Cloudflare** Workers to receive, validate, decrypt and persist incoming Peppol AS4 messages
 
 ## Low-Level Cryptographic Implementation
 
@@ -22,6 +27,7 @@ are implemented directly using Node.js's built-in `crypto` module and the `xml-c
 
 ## Features
 
+**Sender:**
 - SML lookup + Peppol SMP discovery 
 - Send AS4 messages (validate, sign, encrypt, verify) 
 - Built-in schematron validation
@@ -29,6 +35,8 @@ are implemented directly using Node.js's built-in `crypto` module and the `xml-c
 - Replay last message byte-for-byte
 - Zero native dependencies, zero compilation
 - Works on Linux, macOS and Windows
+
+**Receiver:**
 
 ## Background
 
@@ -263,7 +271,7 @@ Production deployment requires proper certificate lifecycle management, secure k
 
 ## License
 
-GPL-3.0-only
+AGPL-3.0-only
 
 ## Author
 

@@ -3,24 +3,29 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import path  from 'path';
 import { N42Context } from '../../../../model/context.js';
+import { N42Environment } from '../../../../model/environment.js';
 import { getFile } from '../../storage/s3.js';
 import { sendDocument } from '../../../../sender/sender.js';
 
 
 export const handler = async (event) => {
+    const runtimeEnv = new N42Environment();
+    console.log('--- [ PLATFORM: ' + (runtimeEnv.platform ?? 'node') + ' ] ---');
+
     const context = new N42Context({
-        certId:     process.env.N42_RECEIVER_CERT_ID,
+        certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
         schematron: '/var/task/src/assets/schematrons/billing',
         truststore: path.join(process.cwd(), 'src/assets/certs/truststore.pem'),
         env:        event.env,
         userId:     event.userId,
         document:   event.document,
         s3Bucket:   event.s3Bucket,
+        runtimeEnv
     });
 
     const document = getFile(context);

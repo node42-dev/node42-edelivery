@@ -30,13 +30,25 @@ yarn-error.log*
 .env.development
 .env.production
 
-# AWS CDK/Terraform/Serverless Framework
+# AWS CDK/Terraform
 .cdk.out/
 .terraform/
 
+# Serverless Framework
 .serverless/
 serverless-sender.yml
 serverless-receiver.yml
+
+# Wrangler
+.wrangler/
+wrangler.toml
+
+# Azure
+local.settings.json
+host.json
+
+# Azure wrapper
+receiver/
 
 # IDE Specific (VSCode, JetBrains, etc.)
 .vscode/

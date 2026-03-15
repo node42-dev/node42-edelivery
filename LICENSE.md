@@ -2,16 +2,16 @@
 
 ## Open Source License
 
-This software is licensed under the **GNU General Public License v3.0 only** (GPL-3.0-only).
+This software is licensed under the **GNU Affero General Public License v3.0 only** (AGPL-3.0-only).
 
-See the full license text: https://www.gnu.org/licenses/gpl-3.0.html  
-SPDX-License-Identifier: GPL-3.0-only  
+See the full license text: https://www.gnu.org/licenses/agpl-3.0.html  
+SPDX-License-Identifier: AGPL-3.0-only  
 Copyright © 2026 Aleon
 Node42 is a product of Aleon
 
 ## Commercial License
 
-A separate commercial license is available for organizations that require use in proprietary/closed-source products, ERP integrations, managed Peppol services, or other scenarios incompatible with GPL-3.0 obligations (e.g., no source disclosure required).
+A separate commercial license is available for organizations that require use in proprietary/closed-source products, ERP integrations, managed Peppol services, or other scenarios incompatible with **AGPL-3.0 only** obligations (e.g., no source disclosure required).
 
 #### Benefits include:
 - Exemption from GPL source code distribution requirements

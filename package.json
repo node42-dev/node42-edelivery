@@ -17,7 +17,7 @@
     "type": "git",
     "url": "git+https://github.com/node42-dev/node42-edelivery.git"
   },
-  "license": "GPL-3.0-only OR LicenseRef-Commercial",
+  "license": "AGPL-3.0-only OR LicenseRef-Commercial",
   "author": "Node42 @n42",
   "type": "module",
   "bin": {
@@ -52,7 +52,8 @@
   "peerDependencies": {
     "@aws-sdk/client-dynamodb": "^3",
     "@aws-sdk/credential-provider-ini": "^3",
-    "@aws-sdk/lib-dynamodb": "^3"
+    "@aws-sdk/lib-dynamodb": "^3",
+    "@aws-sdk/client-s3": "^3"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-dynamodb": {
@@ -63,10 +64,12 @@
     },
     "@aws-sdk/lib-dynamodb": {
       "optional": true
+    },
+    "@aws-sdk/client-s3": {
+      "optional": true
     }
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1008.0",
     "@xmldom/xmldom": "^0.9.4",
     "commander": "^12.1.0",
     "dotenv": "^17.3.1",

@@ -15,9 +15,14 @@ DEFAULT_CERT_ID="051729ab-9e56-492f-87a2-2c9edaa73e35"
 DEFAULT_SENDER_ID="iso6523-actorid-upis::0007:node42"
 DEFAULT_RECEIVER_ID="iso6523-actorid-upis::9915:helger"
 DEFAULT_SENDER_COUNTRY="SE"
-#DEFAULT_ENDPOINT_URL="https://ap.node42.dev/as4/123"
-DEFAULT_ENDPOINT_URL="https://api.node42.dev/as4"
 DEFAULT_HOSTNAME="node42"
+
+ENDPOINT_OPTIONS=(
+  "https://ap.node42.dev/as4/123"
+  "https://api.node42.dev/as4"
+  "https://ap-peppol.n42.workers.dev/as4"
+  "https://ap-peppol.azurewebsites.net/api/as4"
+)
 
 # ── Helper ────────────────────────────────────────────────────────────────────
 
@@ -46,10 +51,24 @@ CERT_ID=$(prompt        "Cert ID          [d: $DEFAULT_CERT_ID]"        "$DEFAUL
 SENDER_ID=$(prompt      "Sender ID        [d: $DEFAULT_SENDER_ID]"      "$DEFAULT_SENDER_ID")
 RECEIVER_ID=$(prompt    "Receiver ID      [d: $DEFAULT_RECEIVER_ID]"    "$DEFAULT_RECEIVER_ID")
 SENDER_COUNTRY=$(prompt "Sender country   [d: $DEFAULT_SENDER_COUNTRY]" "$DEFAULT_SENDER_COUNTRY")
-ENDPOINT_URL=$(prompt   "Endpoint URL     [d: $DEFAULT_ENDPOINT_URL]"   "$DEFAULT_ENDPOINT_URL")
 HOSTNAME=$(prompt       "Hostname         [d: $DEFAULT_HOSTNAME]"       "$DEFAULT_HOSTNAME")
 DOCUMENT=$(prompt       "Document path    [d: none]"                    "")
 SCHEMATRON=$(prompt     "Schematron path  [d: none]"                    "")
+
+echo ""
+echo "  Select endpoint:"
+for i in "${!ENDPOINT_OPTIONS[@]}"; do
+  printf "  %d) %s\n" "$((i+1))" "${ENDPOINT_OPTIONS[$i]}"
+done
+echo ""
+
+read -p "  Choose endpoint [1-${#ENDPOINT_OPTIONS[@]}] (enter=last): " EP_INDEX
+
+if [[ -z "$EP_INDEX" ]]; then
+  ENDPOINT_URL="${ENDPOINT_OPTIONS[-1]}"
+else
+  ENDPOINT_URL="${ENDPOINT_OPTIONS[$((EP_INDEX-1))]}"
+fi
 
 echo ""
 read -p "  Enable dryrun?  (y/n): " DRYRUN_INPUT

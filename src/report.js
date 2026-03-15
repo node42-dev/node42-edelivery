@@ -1,3 +1,11 @@
+/*
+  Author: Alex Olsson
+  Copyright (C) 2026 Node42 (www.node42.dev)
+  Email: a1exnd3r@node42.dev
+  GitHub: https://github.com/node42-dev
+  SPDX-License-Identifier: AGPL-3.0-only
+*/
+
 import fs   from 'fs';
 import path from 'path';
 
@@ -27,8 +35,8 @@ import {
 
 
 let db = null;
-async function getDb() {
-  if (!db) db = createDb(await getDbAdapter());
+async function getDb(context) {
+  if (!db) db = createDb(await getDbAdapter(context));
   return db;
 }
 
@@ -235,7 +243,7 @@ export function buildTransactionReport(stats, senderCN) {
 }
 
 export async function generateReports(context, fromDate, toDate) {
-  db = await getDb();
+  db = await getDb(context);
 
   const certPath = path.join(getUserCertsDir(), 'cert.pem');
   if (!fs.existsSync(certPath)) {
@@ -244,7 +252,7 @@ export async function generateReports(context, fromDate, toDate) {
   const cert   = fs.readFileSync(certPath);
   const senderCN   = getCertCommonName(cert);
 
-  const stats      = aggregateStats(await db.getAll('transactions'), fromDate, toDate);
+  const stats      = aggregateStats(await db.getAll('Transactions'), fromDate, toDate);
   const from       = fromDate instanceof Date ? fromDate.toISOString().slice(0, 10) : fromDate;
   const to         = toDate   instanceof Date ? toDate.toISOString().slice(0, 10)   : toDate;
   const outDir     = getUserReportsDir();

@@ -19,7 +19,7 @@ export class N42Timer {
       '%': ((parseFloat(t.ms) / total) * 100).toFixed(0),
     })));
 
-    console.log(`Total: ${total.toFixed(0)}ms`);
+    console.log(`Total: ${total.toFixed(0)} ms`);
     console.log();
     
     return this.times;

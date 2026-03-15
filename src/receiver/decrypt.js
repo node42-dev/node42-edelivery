@@ -73,6 +73,24 @@ export async function decryptAs4Payload(envelope, attachment, privateKeyPem) {
   
   let sessionKey;
   try {
+    const keyData = privateKey.export({ type: 'pkcs8', format: 'der' });
+    const cryptoKey = await crypto.subtle.importKey(
+      'pkcs8',
+      keyData,
+      { name: 'RSA-OAEP', hash: 'SHA-256' },
+      false,
+      ['decrypt']
+    );
+
+    const sessionKeyBuffer = await crypto.subtle.decrypt(
+      { name: 'RSA-OAEP' },
+      cryptoKey,
+      wrappedKey
+    );
+
+    sessionKey = Buffer.from(sessionKeyBuffer);
+    
+    /*
     sessionKey = crypto.privateDecrypt(
       {
         key: privateKey,
@@ -81,6 +99,7 @@ export async function decryptAs4Payload(envelope, attachment, privateKeyPem) {
       },
       wrappedKey
     );
+    */
   } catch(e) {
     throw new N42Error(N42ErrorCode.TRANSACTION_FAILED, { details: `Failed to unwrap session key: ${e.message}` });
   }

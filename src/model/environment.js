@@ -1,0 +1,89 @@
+export class N42Environment {
+  constructor(env = null) {
+    this._env = env;
+    this.platform = this.#detectPlatform();
+    this.isServerless = !!this.platform;
+    this._cache = new Map();
+    this.canSet = false;
+  }
+
+  #detectPlatform() {
+    if (globalThis?.caches?.default || typeof WebSocketPair !== 'undefined') {
+      return 'cloudflare-workers';
+    }
+    if (process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.LAMBDA_TASK_ROOT) {
+      return 'aws-lambda';
+    }
+    if (process.env.AZURE_FUNCTIONS_ENVIRONMENT || process.env.WEBSITE_SITE_NAME) {
+      return 'azure-functions';
+    }
+    if (process.env.FUNCTION_NAME || process.env.GCP_PROJECT) {
+      return 'google-cloud-functions';
+    }
+    if (process.env.VERCEL || process.env.VERCEL_ENV || process.env.VERCEL_REGION) {
+      return 'vercel';
+    }
+    if (process.env.NETLIFY || process.env.CONTEXT === 'deploy-preview') {
+      return 'netlify';
+    }
+    if (typeof Deno !== 'undefined') {
+      return 'deno';
+    }
+    return null;
+  }
+
+  get(key, defaultValue = undefined) {
+    const cached = this._cache.get(key);
+    if (cached !== undefined) return cached;
+
+    let value;
+
+    switch (this.platform) {
+      case 'cloudflare-workers': {
+        value = this._env?.[key];
+        break;
+      }
+      case 'aws-lambda':
+      case 'azure-functions':
+      case 'google-cloud-functions':
+      case 'vercel':
+      case 'netlify':
+      default: {
+        value = process.env[key];
+        break;
+      }
+    }
+
+    this._cache.set(key, value);
+    return value ?? defaultValue;
+  }
+
+  set(key, value) {
+    if (this.platform === 'cloudflare-workers') {
+      throw new Error('Cannot set env vars at runtime in Cloudflare Workers');
+    }
+    if (!this.isServerless) {
+      process.env[key] = value;
+      this._cache.set(key, value);
+      return;
+    }
+    throw new Error(`Setting env vars at runtime not supported on ${this.platform}`);
+  }
+
+  toObject() {
+    switch (this.platform) {
+      case 'cloudflare-workers':
+        return this._env ? { ...this._env } : {};
+      default:
+        return { ...process.env };
+    }
+  }
+
+  get isCloudflare() {
+    return this.platform === 'cloudflare-workers';
+  }
+
+  get isAws() {
+    return this.platform === 'aws-lambda';
+  }
+}

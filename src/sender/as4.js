@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import crypto   from 'crypto';
@@ -41,15 +41,16 @@ const parser     = new DOMParser();
 const serializer = new XMLSerializer();
 
 let db = null;
-async function getDb() {
-  if (!db) db = createDb(await getDbAdapter());
+async function getDb(context) {
+  if (!db) db = createDb(await getDbAdapter(context));
   return db;
 }
 
 // ── DB ────────────────────────────────────────────────
 
 export async function saveTransaction(context) {
-  db = await getDb();
+  db = await getDb(context);
+  
   await db.insert('Transactions', {
     type:              'TRANSACTION',
     userId:            context.senderId,
@@ -370,8 +371,8 @@ export async function sendAs4Message(context, headers, body) {
       res = await fetch(context.endpointUrl, { method: 'POST', headers, body, signal: ctrl.signal });
       clearTimeout(tid);
     } catch(e) {
-      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       context.spinner.fail('Sending Message');
+      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       continue;
     }
 
@@ -379,8 +380,8 @@ export async function sendAs4Message(context, headers, body) {
     
     if (!resBody.length || res.status >= 400) {
       const retryable = res.status >= 500;
-      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: `HTTP ${res.status}` }, { url: context.endpointUrl, retryable });
       context.spinner.fail('Sending Message');
+      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: `HTTP ${res.status}` }, { url: context.endpointUrl, retryable });
       if (!retryable) break;
       continue;
     }
@@ -394,8 +395,8 @@ export async function sendAs4Message(context, headers, body) {
     try {
       signal = parseAs4Signal(resBody);
     } catch(e) {
-      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       context.spinner.fail('Parsing Response');
+      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       continue;
     }
     context.spinner.done('Parsed Response');
