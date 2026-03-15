@@ -33,7 +33,10 @@ yarn-error.log*
 # AWS CDK/Terraform/Serverless Framework
 .cdk.out/
 .terraform/
+
 .serverless/
+serverless-sender.yml
+serverless-receiver.yml
 
 # IDE Specific (VSCode, JetBrains, etc.)
 .vscode/

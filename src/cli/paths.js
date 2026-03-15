@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import fs   from 'fs';
@@ -22,7 +22,8 @@ const __dirname = path.dirname(import.meta.url.startsWith('file:')
 export const getN42Home = () => path.join(os.homedir(), '.node42');
 
 function ensureDir(dir) {
-  fs.mkdirSync(dir, { recursive: true });
+  try { fs.mkdirSync(dir, { recursive: true }); }
+  catch { return null; }
   return dir;
 }
 
@@ -72,7 +73,7 @@ export function initShellCompletion() {
 
 export function initDotEnv(force=false) {
   const src = path.join(getAssetsDir(), 'env.example');
-  const dest = path.join(getUserHomeDir(), '.env.local');
+  const dest = path.join(getUserHomeDir(), '.env.test');
   if (force || !fs.existsSync(dest)) {
     fs.copyFileSync(src, dest);
   }

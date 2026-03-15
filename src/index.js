@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 export { N42Context }             from './model/context.js';

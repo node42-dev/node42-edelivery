@@ -86,7 +86,7 @@ import { N42Context, N42Error, sendDocument } from '@n42/edelivery';
 
 try {
   await sendDocument(context, document);
-} catch (e) {
+} catch(e) {
   if (e instanceof N42Error) {
     console.error(`[${e.code}] ${e.reason}`);
     console.error(`Retryable: ${e.retryable}`);

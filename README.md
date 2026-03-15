@@ -87,7 +87,7 @@ Send a Peppol UBL document via AS4.
 |--------------------|------------------------------------------------------|
 | `--replay`         | Re-send transaction using stored artefacts           |
 | `--document`       | Path to the UBL XML document to send                 |
-| `--data`           | Path to JSON document data                           |
+| `--ubl`            | Path to UBL document descriptor                      |
 | `--schematron`     | Path to schematron XSL files for validation          |
 | `--env`            | Target environment: `test` or `prod`                 |
 | `--cert-id`        | Node42 Probe certificate ID                          |
@@ -253,7 +253,7 @@ Node42 stores runtime data, generated artefacts, certificates, and configuration
     ├── reports/ 
     ├── db.json
     ├── replay.txt
-    └── .env.local
+    └── .env.test # or .env.prod
 ```
 This directory contains all local data required by the CLI, including cached artefacts, validation rules, certificates, templates, and execution history.
 
@@ -263,7 +263,7 @@ Production deployment requires proper certificate lifecycle management, secure k
 
 ## License
 
-Apache-2.0
+GPL-3.0-only
 
 ## Author
 

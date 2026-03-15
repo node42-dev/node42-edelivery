@@ -3,18 +3,19 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import fs    from 'fs';
 import path  from 'path';
 
+import { N42Timer }          from './cli/timer.js';
 import { N42Context }        from './model/context.js';
 import { Spinner }           from './cli/spinner.js';
 import { c, C }              from './cli/color.js';
 import { buildDocument }     from './document/ubl.js';
-import { sendDocument }      from './messaging/sender.js';
-import { sendAs4Message }    from './messaging/as4.js';
+import { sendDocument }      from './sender/sender.js';
+import { sendAs4Message }    from './sender/as4.js';
 import { generateReports }   from './report.js';
 
 import { 
@@ -60,6 +61,7 @@ import {
   handleError 
 } from './core/error.js';
 
+const timer = new N42Timer();
 
 /**
  * Register CLI commands on the commander program instance.
@@ -107,19 +109,19 @@ export function registerCommands(program) {
 
             context.cert = path.join(certsDir, 'cert.pem');
             if (!fs.existsSync(context.cert)) {
-                throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Sender certificate not present in ${c(C.BOLD, certsDir)}` }, { retryable: false });
+                throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Sender certificate not present in ${c(C.BOLD, certsDir)}` });
             }
             context.senderCert = fs.readFileSync(context.cert);
 
             context.key = path.join(certsDir, 'key.pem');
             if (!fs.existsSync(context.key)) {
-                throw new N42Error(N42ErrorCode.KEY_NOT_FOUND, { details: `Sender key not present in ${c(C.BOLD, certsDir)}` }, { retryable: false });   
+                throw new N42Error(N42ErrorCode.KEY_NOT_FOUND, { details: `Sender key not present in ${c(C.BOLD, certsDir)}` });   
             }
             context.senderKey = fs.readFileSync(context.key);
 
             context.truststore = path.join(certsDir, 'truststore.pem');
             if (!fs.existsSync(context.truststore)) {
-                throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Truststore bundle not present in ${c(C.BOLD, certsDir)}` }, { retryable: false });   
+                throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Truststore bundle not present in ${c(C.BOLD, certsDir)}` });   
             }
            
             const certDetails = getCertDetails(context);
@@ -194,12 +196,18 @@ export function registerCommands(program) {
             const body = fs.readFileSync(bodyFile);
             spinner.done('Loaded Message Body');
 
+            timer.mark('Initialized');
+
             await sendAs4Message(context, headers, body); 
+
+            timer.mark('Replayed document');
 
             if (context.persist) {
                 console.log();
                 printArtefacts(context);
             }
+
+            timer.done();
         }
         catch(e) {
            handleError(e);
@@ -335,6 +343,8 @@ export function registerCommands(program) {
         initUserSchematrons(context);
         initUserTemplates(context);
 
+        timer.mark('Initialized');
+
         try {
 
             let document;
@@ -359,8 +369,12 @@ export function registerCommands(program) {
                 }
             }
 
+            timer.mark('Built document');
+
             await sendDocument(context, document);
             console.log();
+
+            timer.mark('Sent document');
 
             if (context.signalMessage) {
                 printSignalMessage(context);
@@ -369,8 +383,11 @@ export function registerCommands(program) {
             if (context.persist) {
                 printArtefacts(context);
             }
+            
+            timer.done();
+
         } 
-        catch (e) {
+        catch(e) {
             if (context.signalMessage) {
                 printSignalMessage(context);
             } else {

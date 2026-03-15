@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import fs            from 'fs';
@@ -18,6 +18,20 @@ import {
   N42ErrorCode 
 } from '../core/error.js';
 
+export function extractCertFields(cert, type = 'subject') {
+  const fields = {};
+  const data = type === 'issuer' ? cert.issuer : cert.subject;
+  const parts = data.split('\n');
+  
+  for (const part of parts) {
+    const [key, value] = part.split('=');
+    if (key && value) {
+      fields[key.trim()] = value.trim();
+    }
+  }
+  
+  return fields;
+}
 
 /**
  * Parse a PEM certificate and return a crypto.X509Certificate object.
@@ -44,6 +58,31 @@ export function getCertInfo(pem) {
   } catch {
     return '(unreadable)';
   }
+}
+
+export function getTruststore(context) {
+  const certsDir = getUserCertsDir();
+  const truststorePath = context.truststore 
+    ? path.resolve(context.truststore) 
+    : path.join(certsDir, 'truststore.pem');
+
+  if (!fs.existsSync(truststorePath)) {
+    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Truststore bundle not present in ${c(C.BOLD, truststorePath)}` });
+  }
+  return truststorePath;
+}
+
+/**
+ * Return the CN value from a PEM certificate.
+ */
+export function getCertCommonName(pem) {
+  const cert    = parseCert(pem);
+  const subject = cert.subject;
+  for (const line of subject.split('\n')) {
+    const [key, val] = line.split('=');
+    if (key?.trim() === 'CN') return val?.trim();
+  }
+  return null;
 }
 
 /**
@@ -106,8 +145,8 @@ export function getKeyDetails(context) {
 
   try {
     keyObj = crypto.createPrivateKey(pemStr);
-  } catch (err) {
-    if (err.message.includes('encrypted')) {
+  } catch(e) {
+    if (e.message.includes('encrypted')) {
       passwordProtected = true;
       if (context?.keyPass) {
         try {
@@ -131,7 +170,7 @@ export function getKeyDetails(context) {
         };
       }
     } else {
-      throw err;
+      throw new N42Error(N42ErrorCode.CRYPTO_FAILED, { details: e.message});
     }
   }
 
@@ -162,16 +201,9 @@ export function getKeyDetails(context) {
 }
 
 export function getTruststoreDetails(context) {
-  const bundle = context.truststore
-    ? path.resolve(context.truststore)
-    : path.join(getUserCertsDir(), 'truststore.pem');
-
-  if (!fs.existsSync(bundle) || fs.statSync(bundle).isDirectory()) {
-    return null;
-  }
-
-  const bundleData = fs.readFileSync(bundle, 'utf-8');
-  const pemBlocks  = bundleData.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || [];
+  const truststore = getTruststore(context);
+  const truststorePem = fs.readFileSync(truststore, 'utf-8');
+  const pemBlocks  = truststorePem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || [];
 
   const parseField = (str, field) => {
     const match = str.split('\n').find(l => l.trim().startsWith(`${field}=`));
@@ -196,20 +228,7 @@ export function getTruststoreDetails(context) {
     };
   });
 
-  return { path: bundle, count: certs.length, certs };
-}
-
-/**
- * Return the CN value from a PEM certificate.
- */
-export function getCertCommonName(pem) {
-  const cert    = parseCert(pem);
-  const subject = cert.subject;
-  for (const line of subject.split('\n')) {
-    const [key, val] = line.split('=');
-    if (key?.trim() === 'CN') return val?.trim();
-  }
-  return null;
+  return { path: truststore, count: certs.length, certs };
 }
 
 /**
@@ -217,16 +236,9 @@ export function getCertCommonName(pem) {
  * Throws N42Error on failure.
  */
 export function validateCert(context) {
-  const certsDir = getUserCertsDir();
-  const bundle   = context.truststore 
-    ? path.resolve(context.truststore) 
-    : path.join(certsDir, 'truststore.pem');
-
-  if (!fs.existsSync(bundle)) {
-    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Truststore bundle not present in ${c(C.BOLD, bundle)}` }, { retryable: false });
-  }
   
   const subject = parseCert(context.receiverCert);
+  const truststore = getTruststore(context);
 
   // Check expiry
   const now = new Date();
@@ -235,8 +247,8 @@ export function validateCert(context) {
   }
 
   // Load trust roots and try to verify chain
-  const bundleData  = fs.readFileSync(bundle, 'utf-8');
-  const pemBlocks   = bundleData.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || [];
+  const truststorePem  = fs.readFileSync(truststore, 'utf-8');
+  const pemBlocks   = truststorePem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || [];
 
   let trusted = false;
   for (const rootPem of pemBlocks) {

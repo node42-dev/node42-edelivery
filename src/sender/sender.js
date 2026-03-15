@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import os   from 'os';
@@ -139,7 +139,7 @@ export async function sendDocument(context, document) {
     ({ profile, url: endpointUrl, cert: receiverCert } = await lookupParticipant(context));
   } catch {
     context.spinner.fail('Lookup Participant');
-    throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: 'Participant' }, { retryable: false });
+    throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: 'Participant' });
   }
 
   if (!context.transportProfile) context.transportProfile = profile;
@@ -148,11 +148,11 @@ export async function sendDocument(context, document) {
 
   if (!context.endpointUrl) {
     context.spinner.fail('Lookup Participant');
-    throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: 'Endpoint URL' }, { retryable: false });
+    throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: 'Endpoint URL' });
   }
   if (!receiverCert) {
     context.spinner.fail('Lookup Participant');
-    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: 'Receiver certificate' }, { retryable: false });
+    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: 'Receiver certificate' });
   }
   context.spinner.done('Found Participant');
 
@@ -172,7 +172,7 @@ export async function sendDocument(context, document) {
   }
   if (!senderCert) {
      const certDir = getUserCertsDir()
-    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Sender certificate not present in ${c(C.BOLD, certDir)}` }, { retryable: false });
+    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Sender certificate not present in ${c(C.BOLD, certDir)}` });
   }
 
   let senderKey = null;
@@ -188,7 +188,7 @@ export async function sendDocument(context, document) {
   }
   if (!senderKey) {
     const certDir = getUserCertsDir()
-    throw new N42Error(N42ErrorCode.KEY_NOT_FOUND, { details: `Sender key not present in ${c(C.BOLD, certDir)}` }, { retryable: false });
+    throw new N42Error(N42ErrorCode.KEY_NOT_FOUND, { details: `Sender key not present in ${c(C.BOLD, certDir)}` });
   }
 
   context.fromPartyId  = getCertCommonName(senderCert);

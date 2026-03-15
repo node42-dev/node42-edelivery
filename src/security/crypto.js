@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import crypto from 'crypto';
@@ -19,6 +19,14 @@ export function compressDocument(document) {
   const compressed = zlib.gzipSync(buf, { level: 6 });
   const digest = crypto.createHash('sha256').update(compressed).digest('base64');
   return { compressed, digest };
+}
+
+/**
+ * Decompress gzipped document
+ */
+export function decompressDocument(compressed) {
+  const buf = Buffer.isBuffer(compressed) ? compressed : Buffer.from(compressed);
+  return zlib.gunzipSync(buf);
 }
 
 /**

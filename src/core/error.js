@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import { c, C } from '../cli/color.js';
@@ -54,7 +54,7 @@ export const N42ErrorCode = Object.freeze({
   KEY_NOT_FOUND:        { code: 11107, area: 'CERT', http: 400, message: 'Private key not found: {details}',           retryable: false },
 
   // Crypto
-  CRYPTO:               { code: 19205, area: 'CRYPTO', http: 500, message: 'Cryptographic operation failed',           retryable: false },
+  CRYPTO_FAILED:        { code: 19205, area: 'CRYPTO', http: 500, message: 'Cryptographic operation failed',           retryable: false },
 
   // Discovery
   DISCOVERY_FAILED:     { code: 12105, area: 'DISC',   http: 502, message: 'Discovery failed: {details}',              retryable: false },
@@ -62,9 +62,17 @@ export const N42ErrorCode = Object.freeze({
   // Validation
   VALIDATION_FAILED:    { code: 12106, area: 'VAL',   http: 400,  message: 'Validation failed: {details}',             retryable: false },
   
+  // transaction
+  TRANSACTION_FAILED:    { code: 12108, area: 'TRX',   http: 400,  message: 'Transaction failed: {details}',           retryable: false },
+
   // AWS
-  SSO_SESSION_EXPIRED: { code: 9036,  area: "AUTH",  http: 500,  message: "SSO session expired: {details}",          retryable: false},
-  DATABASE_ERROR:      { code: 9036,  area: "AUTH",  http: 500,  message: "Database error: {details}",              retryable: false},
+  SSO_SESSION_EXPIRED: { code: 9036,  area: "AUTH",  http: 500,  message: "SSO session expired: {details}",             retryable: false},
+  
+  // Storage
+  DATABASE_ERROR:      { code: 8011,  area: "DB",  http: 500,  message: "Database error: {details}",                    retryable: false},
+  STORAGE_ERROR:       { code: 8012,  area: "ART",  http: 500,  message: "Storage error: {details}",                    retryable: false},
+
+  NOT_IMPLEMENTED:     { code: 6126,  area: "SYS",  http: 500,  message: "Not implemented: {details}",                  retryable: false},
 });
 
 function formatMessage(template, variables = {}) {

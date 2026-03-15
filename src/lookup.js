@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import crypto  from 'crypto';
@@ -35,7 +35,7 @@ async function fetchServiceMetadata(url, timeout) {
     const tid  = setTimeout(() => ctrl.abort(), timeout);
     res = await fetch(url, { signal: ctrl.signal });
     clearTimeout(tid);
-  } catch (e) {
+  } catch(e) {
     throw new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url, retryable: true });
   }
 
@@ -69,7 +69,7 @@ function parseAs4Endpoint(xml) {
     return { profile, url, cert };
   }
 
-  throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: 'AS4 endpoint in SMP response' }, { retryable: false });
+  throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: 'AS4 endpoint in SMP response' });
 }
 
 function base32Encode(hash) {
@@ -88,7 +88,7 @@ async function resolveNaptr(domain) {
   let answers;
   try {
     answers = await dns.resolveNaptr(domain);
-  } catch (e) {
+  } catch(e) {
     const retryable = !e.message.includes('ENOTFOUND') && !e.message.includes('ENODATA');
     throw new N42Error(N42ErrorCode.DNS_EROR, { details: e.message}, { retryable });
   }
@@ -107,13 +107,13 @@ async function resolveNaptr(domain) {
     const result  = domain.replace(new RegExp(`^${pattern}$`), replace);
 
     if (!result.startsWith('http://') && !result.startsWith('https://')) {
-      throw new N42Error(N42ErrorCode.DNS_ERROR, { details: 'NAPTR record did not resolve to a valid URL' }, { retryable: false });
+      throw new N42Error(N42ErrorCode.DNS_ERROR, { details: 'NAPTR record did not resolve to a valid URL' });
     }
 
     return result;
   }
 
-  throw new N42Error(N42ErrorCode.DNS_ERROR, { details: 'No usable NAPTR record found' }, { retryable: false });
+  throw new N42Error(N42ErrorCode.DNS_ERROR, { details: 'No usable NAPTR record found' });
 }
 
 // ── Public API ───────────────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ export async function lookupParticipantServiceUrls(context) {
     const tid  = setTimeout(() => ctrl.abort(), context.timeout);
     res = await fetch(smpUrl, { signal: ctrl.signal });
     clearTimeout(tid);
-  } catch (e) {
+  } catch(e) {
     throw new N42Error(N42ErrorCode.SERVER, { details: e.message}, { url: smpUrl, retryable: true });
   }
 
@@ -166,9 +166,7 @@ export async function lookupParticipant(context) {
   const serviceUrl  = findServiceUrl(serviceUrls, context.documentType);
 
   if (!serviceUrl) {
-    throw new N42Error(N42ErrorCode.SMP_NOT_FOUND,
-      { details: `${context.documentType} in SMP` }, { retryable: false }
-    );
+    throw new N42Error(N42ErrorCode.SMP_NOT_FOUND, { details: `${context.documentType} in SMP` });
   }
 
   const xml = await fetchServiceMetadata(serviceUrl, context.timeout);

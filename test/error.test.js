@@ -61,7 +61,7 @@ describe('N42Error', () => {
   });
 
   it('is an instance of Error', () => {
-    const err = new N42Error(N42ErrorCode.CRYPTO);
+    const err = new N42Error(N42ErrorCode.CRYPTO_FAILED);
     assert.ok(err instanceof Error);
   });
 

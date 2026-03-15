@@ -30,8 +30,8 @@ try {
   run(`${CLI} send --help`);
 
   console.log("CLI validation OK");
-} catch (err) {
+} catch(e) {
   console.error("CLI validation FAILED");
-  console.error(err.message);
+  console.error(e.message);
   process.exit(1);
 }

@@ -27,7 +27,7 @@ import { createJsonFileAdapter } from './db/adapters/json-db.js';
 const db = createDb(createJsonFileAdapter('~/.node42/db.json'));
 ```
 
-The CLI wires this up automatically via `getDbAdapter()`, which reads `N42_CLI_DB` from the environment.
+The CLI wires this up automatically via `getDbAdapter()`, which reads `N42_DB_ADAPTER` from the environment.
 
 ---
 
@@ -35,11 +35,11 @@ The CLI wires this up automatically via `getDbAdapter()`, which reads `N42_CLI_D
 
 ```dotenv
 # Default (no config needed) — uses JSON file
-N42_CLI_DB=jsondb
+N42_DB_ADAPTER=jsondb
 
 # DynamoDB (requires AWS SDK installed separately)
-N42_CLI_DB=dynamodb
-N42_CLI_TABLE=cli-transactions
+N42_DB_ADAPTER=dynamodb
+N42_DB_TABLE=cli-transactions
 AWS_REGION=eu-north-1
 AWS_SSO_PROFILE=default
 ```
@@ -67,12 +67,12 @@ Collections are flexible and can hold any object structure.
 
 ## Core API
 
-### `db.get(collection)`
+### `db.getAll(collection)`
 
 Returns a collection array or an empty array. Never throws if missing.
 
 ```js
-const artefacts = db.get('artefacts');
+const artefacts = db.getAll('Discovery');
 ```
 
 ### `db.insert(collection, item)`
@@ -80,7 +80,7 @@ const artefacts = db.get('artefacts');
 Adds an item and persists.
 
 ```js
-db.insert('artefacts', {
+db.insert('Discovery', {
   id:            'uuid',
   participantId: '0007:123',
   createdAt:     Date.now()
@@ -92,7 +92,7 @@ db.insert('artefacts', {
 Filters a collection by predicate.
 
 ```js
-const results = db.find('artefacts', x => x.participantId === pid);
+const results = db.find('Discovery', x => x.participantId === pid);
 ```
 
 ### `db.upsert(collection, item, key?)`
@@ -116,7 +116,7 @@ db.update('user', { id: 'abc', userName: 'Updated' });
 Removes items matching the key value.
 
 ```js
-db.remove('artefacts', 'uuid');
+db.remove('Discovery', 'uuid');
 ```
 
 ### `db.replace(collection, value)`
@@ -132,7 +132,7 @@ db.replace('discovery', []);
 Empties a collection.
 
 ```js
-db.clear('artefacts');
+db.clear('Discovery');
 ```
 
 ---
@@ -146,7 +146,7 @@ Builds an in-memory index for repeated queries.
 ```js
 import { indexBy } from './db/db.js';
 
-const artefacts = db.get('artefacts');
+const artefacts = db.getAll('Discovery');
 const byPid     = indexBy(artefacts, 'participantId');
 const results   = byPid['0007:123'] ?? [];
 ```
@@ -174,13 +174,13 @@ Same as `indexBy` but returns a `Map`. Useful when keys are non-strings.
 
 ```js
 // Insert
-db.insert('artefacts', obj);
+db.insert('Discovery', obj);
 
 // Simple search
-const [item] = db.find('artefacts', x => x.id === uuid);
+const [item] = db.find('Discovery', x => x.id === uuid);
 
 // Indexed repeated search
-const list  = db.get('artefacts');
+const list  = db.getAll('Discovery');
 const idx   = indexBy(list, 'participantId');
 const items = idx['0007:123'] ?? [];
 ```

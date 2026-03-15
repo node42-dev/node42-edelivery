@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import fs   from 'fs';
@@ -114,7 +114,7 @@ export async function validateDocument(context, document, opts = {}) {
         destination:        'serialized',
       }, 'sync');
       svrlStr = result.principalResult;
-    } catch (e) {
+    } catch(e) {
       allErrors.push({ message: `Schematron transform failed: ${e.message}`, code: 'CONFIG', severity: 'fatal' });
       continue;
     }

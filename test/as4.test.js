@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { parseAs4Signal, buildAs4Envelope } from '../src/messaging/as4.js';
+import { parseAs4Signal, buildAs4Envelope } from '../src/sender/as4.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const CERT_PEM  = fs.readFileSync(path.join(__dirname, 'fixtures/test-cert.pem'), 'utf-8');

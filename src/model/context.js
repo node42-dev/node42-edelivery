@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import { randomUUID } from 'crypto';
@@ -15,6 +15,8 @@ export class N42Context {
     this.document         = opts.document         ?? null;
     this.ubl              = opts.ubl              ?? null;
     this.id               = opts.id               ?? randomUUID();
+    this.userId           = opts.userId           ?? null;
+    this.messageId        = opts.messageId        ?? null;
     this.timestamp        = opts.timestamp        ?? new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
     this.cert             = opts.cert             ?? 'cert.pem';
     this.certId           = opts.certId           ?? null;
@@ -48,5 +50,6 @@ export class N42Context {
     this.timeout          = opts.timeout          ?? 20000;
     this.spinner          = opts.spinner          ?? null;
     this.saxonAvailable   = opts.saxonAvailable   ?? false;
+    this.s3Bucket         = opts.s3Bucket         ?? null;
   }
 }

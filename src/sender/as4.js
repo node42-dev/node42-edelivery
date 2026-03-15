@@ -3,7 +3,7 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: Apache-2.0
+  SPDX-License-Identifier: GPL-3.0-only
 */
 
 import crypto   from 'crypto';
@@ -50,18 +50,27 @@ async function getDb() {
 
 export async function saveTransaction(context) {
   db = await getDb();
-  await db.insert('transactions', {
-    id:               context.id,
-    sentAt:           context.timestamp,
-    senderId:         context.senderId,
-    receiverId:       context.receiverId,
-    receiverCN:       context.toPartyId,
-    documentType:     context.documentType,
-    processId:        context.processId,
-    transportProfile: context.transportProfile,
-    senderCountry:    context.senderCountry,
-    receiverCountry:  context.receiverCountry,
-  });
+  await db.insert('Transactions', {
+    type:              'TRANSACTION',
+    userId:            context.senderId,
+    id:                context.id,
+    PK:                `USER#${context.senderId}`,
+    SK:                `TRANSACTION#${context.id}`,
+    GSI1PK:            `USER#${context.senderId}#FLOW#FROM_NETWORK`,
+    GSI1SK:            context.timestamp,
+    environment:       context.env,
+    transactionFlow:   'TO_NETWORK',
+    senderId:          context.senderId,
+    receiverId:        context.receiverId,
+    receiverCN:        context.toPartyId,
+    docTypeId:         context.documentType,
+    processId:         context.processId,
+    transportProfile:  context.transportProfile,
+    senderCountry:     context.senderCountry,
+    receiverCountry:   context.receiverCountry,
+    transactionStatus: 'COMPLETED',
+    createdAt:         context.timestamp,
+  });      
 }
 
 // ── Parse AS4 signal response ────────────────────────────────────────────────
@@ -360,7 +369,7 @@ export async function sendAs4Message(context, headers, body) {
       const tid  = setTimeout(() => ctrl.abort(), context.timeout);
       res = await fetch(context.endpointUrl, { method: 'POST', headers, body, signal: ctrl.signal });
       clearTimeout(tid);
-    } catch (e) {
+    } catch(e) {
       lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       context.spinner.fail('Sending Message');
       continue;
@@ -384,7 +393,7 @@ export async function sendAs4Message(context, headers, body) {
     let signal;
     try {
       signal = parseAs4Signal(resBody);
-    } catch (e) {
+    } catch(e) {
       lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       context.spinner.fail('Parsing Response');
       continue;

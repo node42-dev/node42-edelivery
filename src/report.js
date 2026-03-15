@@ -58,8 +58,8 @@ export function aggregateStats(transactions, fromDate, toDate) {
   const to   = new Date(toDate).getTime();
 
   const filtered = transactions.filter(t => {
-    const sentAt = new Date(t.sentAt).getTime();
-    return sentAt >= from && sentAt <= to;
+    const createdAt = new Date(t.createdAt).getTime();
+    return createdAt >= from && createdAt <= to;
   });
 
   const senders                                           = new Set();
@@ -78,17 +78,17 @@ export function aggregateStats(transactions, fromDate, toDate) {
     sendersByCountry[t.senderCountry].add(t.senderId);
 
     // by document type + country
-    const dtCc = `${t.documentType}|${t.senderCountry}`;
+    const dtCc = `${t.docTypeId}|${t.senderCountry}`;
     sendersByDocumentTypeCountry[dtCc] ??= new Set();
     sendersByDocumentTypeCountry[dtCc].add(t.senderId);
 
     // by document type + process type
-    const dtPr = `${t.documentType}|${t.processId}`;
+    const dtPr = `${t.docTypeId}|${t.processId}`;
     sendersByDocumentTypeProcessId[dtPr] ??= new Set();
     sendersByDocumentTypeProcessId[dtPr].add(t.senderId);
 
     // by document type + process type + country
-    const dtPrCc = `${t.documentType}|${t.processId}|${t.senderCountry}`;
+    const dtPrCc = `${t.docTypeId}|${t.processId}|${t.senderCountry}`;
     sendersByDocumentTypeProcessIdCountry[dtPrCc] ??= new Set();
     sendersByDocumentTypeProcessIdCountry[dtPrCc].add(t.senderId);
 
@@ -97,7 +97,7 @@ export function aggregateStats(transactions, fromDate, toDate) {
     outgoingByTransportProfile[t.transportProfile]++;
 
     // outgoing by receiver CN + document type + process type
-    const spDtPr = `${t.receiverCN}|${t.documentType}|${t.processId}`;
+    const spDtPr = `${t.receiverCN}|${t.docTypeId}|${t.processId}`;
     outgoingByReceiverCommonNameDocumentTypeProcessId[spDtPr] ??= 0;
     outgoingByReceiverCommonNameDocumentTypeProcessId[spDtPr]++;
   }
@@ -239,12 +239,12 @@ export async function generateReports(context, fromDate, toDate) {
 
   const certPath = path.join(getUserCertsDir(), 'cert.pem');
   if (!fs.existsSync(certPath)) {
-    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: 'Sender' }, { retryable: false });
+    throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: 'Sender' });
   }
   const cert   = fs.readFileSync(certPath);
   const senderCN   = getCertCommonName(cert);
 
-  const stats      = aggregateStats(await db.get('transactions'), fromDate, toDate);
+  const stats      = aggregateStats(await db.getAll('transactions'), fromDate, toDate);
   const from       = fromDate instanceof Date ? fromDate.toISOString().slice(0, 10) : fromDate;
   const to         = toDate   instanceof Date ? toDate.toISOString().slice(0, 10)   : toDate;
   const outDir     = getUserReportsDir();

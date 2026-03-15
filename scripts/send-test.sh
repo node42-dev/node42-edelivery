@@ -15,7 +15,8 @@ DEFAULT_CERT_ID="051729ab-9e56-492f-87a2-2c9edaa73e35"
 DEFAULT_SENDER_ID="iso6523-actorid-upis::0007:node42"
 DEFAULT_RECEIVER_ID="iso6523-actorid-upis::9915:helger"
 DEFAULT_SENDER_COUNTRY="SE"
-DEFAULT_ENDPOINT_URL="https://ap.node42.dev/as4/123"
+#DEFAULT_ENDPOINT_URL="https://ap.node42.dev/as4/123"
+DEFAULT_ENDPOINT_URL="https://api.node42.dev/as4"
 DEFAULT_HOSTNAME="node42"
 
 # ── Helper ────────────────────────────────────────────────────────────────────
