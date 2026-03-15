@@ -11,7 +11,7 @@ export { N42Error, N42ErrorCode } from './core/error.js';
 export { registerCommands }       from './commands.js';
 
 export { lookupParticipant }      from './lookup.js';
-export { sendDocument }           from './messaging/sender.js';
+export { sendDocument }           from './sender/sender.js';
 export { generateReports }        from './report.js';
 
 export { 

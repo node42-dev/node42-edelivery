@@ -18,10 +18,9 @@ DEFAULT_SENDER_COUNTRY="SE"
 DEFAULT_HOSTNAME="node42"
 
 ENDPOINT_OPTIONS=(
-  "https://ap.node42.dev/as4/123"
-  "https://api.node42.dev/as4"
-  "https://ap-peppol.n42.workers.dev/as4"
-  "https://ap-peppol.azurewebsites.net/api/as4"
+  "https://api.node42.dev/as4"                        # AWS
+  "https://ap-peppol.n42.workers.dev/as4"             # Cloudflare
+  "https://ap-peppol.azurewebsites.net/api/as4"       # Azure
 )
 
 # ── Helper ────────────────────────────────────────────────────────────────────
