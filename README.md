@@ -27,16 +27,31 @@ are implemented directly using Node.js's built-in `crypto` module and the `xml-c
 
 ## Features
 
-**Sender:**
-- SML lookup + Peppol SMP discovery 
-- Send AS4 messages (validate, sign, encrypt, verify) 
+## Features
+
+**CLI Sender** *(local)*
+- SML lookup + Peppol SMP discovery
+- Send AS4 messages (validate, sign, encrypt, verify)
 - Built-in schematron validation
 - Transaction reporting
 - Replay last message byte-for-byte
 - Zero native dependencies, zero compilation
 - Works on Linux, macOS and Windows
 
-**Receiver:**
+**Cloud Sender** *(AWS Lambda | Azure Functions | Cloudflare Workers)*
+- All CLI sender features
+- Serverless deployment — no infrastructure to manage
+- Multi-cloud — deploy to any supported platform from a single codebase
+
+**Cloud Receiver** *(AWS Lambda | Azure Functions | Cloudflare Workers)*
+- Receive and parse incoming AS4 messages
+- Validate UBL business document
+- Generate signed MDN receipt
+- Persist transactions to DynamoDB or CosmosDB
+- Store documents to S3 or Azure Blob Storage
+- Multi-cloud — deploy to any supported platform from a single codebase
+
+> ⚠️ Cloud deployment requires extensive infrastructure configuration beyond the scope of this documentation. If a commercial license or deployment support is required, contact [support@node42.dev](mailto:support@node42.dev).
 
 ## Background
 

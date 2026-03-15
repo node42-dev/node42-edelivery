@@ -4,7 +4,7 @@ import fs   from 'fs';
 import path from 'path';
 import os   from 'os';
 
-import { createSenderJsonFileAdapter } from '../src/db/adapters/sender.jsondb.js';
+import { createSenderJsonFileAdapter } from '../src/db/adapters/sender.json.db.js';
 import { createDb, indexBy, indexByFn } from '../src/db/db.js';
 
 const TEST_DB = path.join(os.tmpdir(), 'n42-test-db.json');
