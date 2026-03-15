@@ -47,9 +47,6 @@ wrangler.toml
 local.settings.json
 host.json
 
-# Azure wrapper
-receiver/
-
 # IDE Specific (VSCode, JetBrains, etc.)
 .vscode/
 .idea/
