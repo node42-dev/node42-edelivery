@@ -29,6 +29,8 @@ The CLI wires this up automatically via `getDbAdapter()`, which reads `N42_DB_AD
 
 ## Environment Configuration
 
+Place this in `~/.node42/.env.<environment>` for local development.
+
 ```bash
 # CLI JSON DB **Default** (no config needed) — uses JSON file
 N42_DB_ADAPTER=cli-json-db
@@ -38,7 +40,11 @@ N42_DB_ADAPTER=cli-aws-dynamo-db
 N42_DB_TABLE_CLI=<your-table>
 AWS_REGION=<your-region>
 AWS_PROFILE=<your-sso-profile>
+```
 
+Configure these variables in the deployment script when deploying to cloud environments.
+
+```bash
 # Sender DynamoDB (requires AWS SDK installed separately)
 N42_DB_ADAPTER=sender-aws-dynamo-db
 AWS_REGION=<your-region>
@@ -60,10 +66,10 @@ N42_DB_ADAPTER=receiver-azure-cosmos-db
 COSMOS_ENDPOINT=https://<your-account.documents.azure.com>:443/
 COSMOS_DATABASE=<your-database>
 COSMOS_KEY=<your-key>
+
+# Storage adapter (required regardless of database adapter)
+N42_STORAGE_ADAPTER=<your_storage_adapter>
 ```
-
-Place this in `~/.node42/.env.<environment>` for local development.
-
 
 ## Available Adapters
 
@@ -90,7 +96,29 @@ Place this in `~/.node42/.env.<environment>` for local development.
 | Cloudflare Workers | Cloud | Sender   | `sender-aws-dynamo-db`     | 🚧                    |
 | Cloudflare Workers | Cloud | Receiver | `receiver-aws-dynamo-db`   | `receiver-aws-s3`     |
 
-## Default Storage (cli-json-db)
+## Writing a Custom Adapter
+
+Implement these methods and pass to `createDb`:
+
+```js
+const myAdapter = {
+  getAll:                 (collection)                => { /* return array */ },
+  find:                   (collection, predicate)     => { /* return filtered array */ },
+  getOne:                 (collection, key, value)    => { /* return single item */ },
+  insert:                 (collection, item)          => { /* persist */ },
+  update:                 (collection, item, key)     => { /* return bool */ },
+  upsert:                 (collection, item, key)     => { /* insert or update */ },
+  replace:                (collection, value)         => { /* replace collection */ },
+  remove:                 (collection, keyValue, key) => { /* delete */ },
+  clear:                  (collection)                => { /* empty collection */ },
+  set:                    (collection, key, value)    => { /* set key/value */ },
+  artefactsByParticipant: (collection, pid)           => { /* optimised lookup */ },
+};
+
+const db = createDb(myAdapter);
+```
+
+## Default Database (cli-json-db)
 
 Location (Linux/macOS/Windows):
 ```
@@ -110,7 +138,7 @@ Intended scale: **1 – 10,000 records**.
 | 100k+   | Consider SQLite | ~10ms    | ~10ms    |
 
 
-## Data Structure
+### Data Structure
 
 Example `db.json`:
 
@@ -124,7 +152,8 @@ Example `db.json`:
 
 Collections are flexible and can hold any object structure.
 
-## Core API
+### Core API
+---
 
 ### `db.getAll(collection)`
 
@@ -210,7 +239,7 @@ Returns all artefacts for a participant. Uses GSI1 index on DynamoDB, query on C
 const artefacts = await db.artefactsByParticipant('Discovery', '0007:123');
 ```
 
-## Indexing (Fast Lookup)
+### Indexing (Fast Lookup)
 
 ### `indexBy(list, key)`
 
@@ -240,29 +269,7 @@ const items = byDay['2026-01-29'] ?? [];
 Same as `indexBy` but returns a `Map`. Useful when keys are non-strings.
 
 
-## Writing a Custom Adapter
-
-Implement these methods and pass to `createDb`:
-
-```js
-const myAdapter = {
-  getAll:                 (collection)                => { /* return array */ },
-  find:                   (collection, predicate)     => { /* return filtered array */ },
-  getOne:                 (collection, key, value)    => { /* return single item */ },
-  insert:                 (collection, item)          => { /* persist */ },
-  update:                 (collection, item, key)     => { /* return bool */ },
-  upsert:                 (collection, item, key)     => { /* insert or update */ },
-  replace:                (collection, value)         => { /* replace collection */ },
-  remove:                 (collection, keyValue, key) => { /* delete */ },
-  clear:                  (collection)                => { /* empty collection */ },
-  set:                    (collection, key, value)    => { /* set key/value */ },
-  artefactsByParticipant: (collection, pid)           => { /* optimised lookup */ },
-};
-
-const db = createDb(myAdapter);
-```
-
-## File Safety
+### File Safety
 
 ```bash
 chmod 600 ~/.node42/db.json
