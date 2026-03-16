@@ -4,7 +4,7 @@ import fs   from 'fs';
 import path from 'path';
 import os   from 'os';
 
-import { createSenderJsonFileAdapter } from '../src/db/adapters/sender.json.db.js';
+import { createCliJsonFileAdapter } from '../src/db/adapters/cli.json.db.js';
 import { createDb, indexBy, indexByFn } from '../src/db/db.js';
 
 const TEST_DB = path.join(os.tmpdir(), 'n42-test-db.json');
@@ -17,7 +17,7 @@ describe('db', () => {
   beforeEach(() => {
     if (fs.existsSync(TEST_DB))          fs.unlinkSync(TEST_DB);
     if (fs.existsSync(TEST_DB + '.tmp')) fs.unlinkSync(TEST_DB + '.tmp');
-    adapter = createSenderJsonFileAdapter(TEST_DB);
+    adapter = createCliJsonFileAdapter(TEST_DB);
     db      = createDb(adapter);
   });
 

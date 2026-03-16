@@ -81,30 +81,6 @@ export function initDotEnv(force=false) {
   }
 }
 
-// TODO: Remove once new fs.cpSync version confirmed working. <a1exnd3r 2026-03-07 d:2026-04-07 p:1>
-/*
-export function initUserSchematrons(context, force = false) {
-  if (force) context.spinner.start('Loading Schematrons');
-  const dir    = getUserSchematronDir();
-  const srcDir = path.join(getAssetsDir(), 'schematrons');
-  const xsls   = fs.readdirSync(dir).filter(f => f.endsWith('.xsl'));
-  let count = 0
-
-  if (force || xsls.length === 0) {
-    if (fs.existsSync(srcDir)) {
-      for (const file of fs.readdirSync(srcDir).filter(f => f.endsWith('.xsl'))) {
-        const dst = path.join(dir, file);
-        if (!fs.existsSync(dst) || force) {
-          fs.copyFileSync(path.join(srcDir, file), dst);
-          count++;
-        }
-      }
-    }
-  }
-  if (force) context.spinner.done(`Loaded Schematrons (${count})`);
-}
-*/
-
 export function initUserSchematrons(context, force = false) {
   if (force) context.spinner.start('Loading Schematrons');
   const dir    = getUserSchematronDir();

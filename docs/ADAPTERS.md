@@ -1,19 +1,19 @@
 ## Database Adapter Support
 
-| Method | sender-json-db | sender-aws-dynamo-db | sender-azure-cosmos-db | receiver-aws-dynamo-db | receiver-azure-cosmos-db |
-|--------|----------------|----------------------|------------------------|------------------------|--------------------------|
-| `insert` | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `update` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `upsert` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `replace` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `set` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `remove` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `clear` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `getAll` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `getOne` | ❌ | ✅ | ✅ | ✅ | ✅ |
-| `find` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `artefactsByParticipant` | ✅ | ✅ | ✅ | ❌ | ❌ |
-| `invalidateArtefactIndex` | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Method | cli-json-db | cli-aws-dynamo-db | sender-aws-dynamo-db | sender-azure-cosmos-db | receiver-aws-dynamo-db | receiver-azure-cosmos-db |
+|--------|-------------|-------------------|----------------------|------------------------|------------------------|--------------------------|
+| `insert` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `update` | ✅ | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| `upsert` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `replace` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `set` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `remove` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `clear` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `getAll` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `getOne` | ❌ | ❌ | ✅ | ✅ |  ✅ | ✅ |
+| `find` | ✅ | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
+| `artefactsByParticipant` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| `invalidateArtefactIndex` | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ## Storage Adapter Support
 
@@ -27,5 +27,5 @@
 
 | Method | receiver-aws-sec-mgr |
 |--------|----------------------|
-| `store` | ❌ |
+| `store` | 🚧 |
 | `get` | ✅ |

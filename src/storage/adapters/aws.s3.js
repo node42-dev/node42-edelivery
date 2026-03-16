@@ -83,4 +83,6 @@ export async function createReceiverS3Adapter(client) {
       throw new N42Error(N42ErrorCode.STORAGE_ERROR, { details: e.message });
     }
   }
+
+  return { getUploadUrl, get, store }
 }

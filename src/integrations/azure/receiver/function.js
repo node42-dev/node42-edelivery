@@ -11,10 +11,12 @@ import { N42Context } from '../../../model/context.js';
 import { N42Environment } from '../../../model/environment.js';
 import { receiveAs4Message } from '../../../receiver/as4.js';
 
+const route = process.env.N42_RECEIVER_INBOUND_PATH ?? 'as4';
+
 app.http('node42-transaction-receiver', {
   methods: ['POST'],
   authLevel: 'anonymous',
-  route: 'as4',
+  route,
   handler: async (request, ctx) => {
     try {
       const headers = {};

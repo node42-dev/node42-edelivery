@@ -10,8 +10,10 @@ import fs   from 'fs';
 import path from 'path';
 import { indexBy } from '../db.js';
 
-
-export function createSenderJsonFileAdapter(filePath) {
+/**
+ * JSON DB adapter for the Node42 eDelivery CLI.
+ */
+export function createCliJsonFileAdapter(filePath) {
   let artefactIndex = null;
 
   function load() {

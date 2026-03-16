@@ -41,6 +41,10 @@ async function isBlobAvailable() {
 
 export async function getStorageAdapter(context) {
     const procEnvStorage = context.runtimeEnv.get('N42_STORAGE_ADAPTER');
+    if (!procEnvStorage) {
+        throw new N42Error(N42ErrorCode.STORAGE_ERROR, { details: 'No storage adapter configured — set N42_STORAGE_ADAPTER' });
+    }
+
     switch(procEnvStorage) {
         case 'receiver-azure-blob': {
             const { BlobServiceClient } = await isBlobAvailable();
@@ -81,7 +85,7 @@ export async function getStorageAdapter(context) {
         }
 
         default: {
-            return null;
+            throw new N42Error(N42ErrorCode.STORAGE_ERROR, { details: 'No storage adapter configured — set N42_STORAGE_ADAPTER' });
         }
     }
 }

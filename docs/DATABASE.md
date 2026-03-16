@@ -26,63 +26,71 @@ db = await getDb(context);
 
 The CLI wires this up automatically via `getDbAdapter()`, which reads `N42_DB_ADAPTER` from the environment.
 
----
 
 ## Environment Configuration
 
-```dotenv
-# Default (no config needed) — uses JSON file
-N42_DB_ADAPTER=sender-json-db
+```bash
+# CLI JSON DB **Default** (no config needed) — uses JSON file
+N42_DB_ADAPTER=cli-json-db
 
-# AWS DynamoDB (requires AWS SDK installed separately)
-N42_DB_ADAPTER=sender-aws-dynamo-db
-N42_DB_TABLE=<your-table>
+# CLI DynamoDB (requires AWS SDK installed separately)
+N42_DB_ADAPTER=cli-aws-dynamo-db
+N42_DB_TABLE_CLI=<your-table>
 AWS_REGION=<your-region>
 AWS_PROFILE=<your-sso-profile>
 
-# Azure CosmosDB (requires Azure SDK installed separately)
+# Sender DynamoDB (requires AWS SDK installed separately)
+N42_DB_ADAPTER=sender-aws-dynamo-db
+AWS_REGION=<your-region>
+AWS_PROFILE=<your-sso-profile>
+
+# Sender CosmosDB (requires Azure SDK installed separately)
 N42_DB_ADAPTER=sender-azure-cosmos-db
 COSMOS_ENDPOINT=https://<your-account.documents.azure.com>:443/
-COSMOS_KEY=<your-key>
 COSMOS_DATABASE=<your-database>
+COSMOS_KEY=<your-key>
 
-# Receiver DynamoDB
+# Receiver DynamoDB (requires AWS SDK installed separately)
 N42_DB_ADAPTER=receiver-aws-dynamo-db
 AWS_REGION=<your-region>
 AWS_PROFILE=<your-sso-profile>
 
-# Receiver CosmosDB
+# Receiver CosmosDB (requires Azure SDK installed separately)
 N42_DB_ADAPTER=receiver-azure-cosmos-db
 COSMOS_ENDPOINT=https://<your-account.documents.azure.com>:443/
-COSMOS_KEY=<your-key>
 COSMOS_DATABASE=<your-database>
+COSMOS_KEY=<your-key>
 ```
 
 Place this in `~/.node42/.env.<environment>` for local development.
 
----
 
 ## Available Adapters
 
 | Adapter | Use Case | Required Package |
 |---|---|---|
-| `sender-json-db`            | Local CLI, development    | None |
-| `sender-aws-dynamo-db`      | AWS Lambda, ECS           | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
-| `sender-azure-cosmos-db`    | Azure Functions           | `@azure/cosmos` |
-| `receiver-aws-dynamo-db`    | AWS Lambda receiver       | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
-| `receiver-azure-cosmos-db`  | Azure Functions receiver  | `@azure/cosmos` |
+| `cli-json-db`               | Local CLI, development     | None |
+| `cli-aws-dynamo-db`         | Local CLI, development     | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
+| `sender-aws-dynamo-db`      | AWS Lambda, Sender         | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
+| `receiver-aws-dynamo-db`    | AWS Lambda, Receiver       | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
+| `sender-azure-cosmos-db`    | Azure Functions, Sender    | `@azure/cosmos` |
+| `receiver-azure-cosmos-db`  | Azure Functions, Receiver  | `@azure/cosmos` |
 
 
 ## Choosing an Adapter
 
-| Deployment | DB Adapter | Storage Adapter |
-|---|---|---|
-| Local CLI          | `sender-json-db`           | — |
-| AWS Lambda         | `receiver-aws-dynamo-db`   | `receiver-aws-s3` |
-| Azure Functions    | `receiver-azure-cosmos-db` | `receiver-azure-blob` |
-| Cloudflare Workers | `receiver-aws-dynamo-db`   | `receiver-aws-s3` |
+| Deployment | Context | Role | DB Adapter | Storage Adapter |
+|--------------------|-------|----------|----------------------------|-----------------------|
+| Local CLI          | Local | Sender   | `cli-json-db`              | ➖                    |
+| Local CLI          | Local | Sender   | `cli-aws-dynamo-db`        | ➖                    |
+| AWS Lambda         | Cloud | Sender   | `sender-aws-dynamo-db`     | 🚧                    |
+| AWS Lambda         | Cloud | Receiver | `receiver-aws-dynamo-db`   | `receiver-aws-s3`     |
+| Azure Functions    | Cloud | Sender   | `sender-azure-cosmos-db`   | 🚧                    |
+| Azure Functions    | Cloud | Receiver | `receiver-azure-cosmos-db` | `receiver-azure-blob` |
+| Cloudflare Workers | Cloud | Sender   | `sender-aws-dynamo-db`     | 🚧                    |
+| Cloudflare Workers | Cloud | Receiver | `receiver-aws-dynamo-db`   | `receiver-aws-s3`     |
 
-## Default Storage (sender-json-db)
+## Default Storage (cli-json-db)
 
 Location (Linux/macOS/Windows):
 ```

@@ -80,7 +80,7 @@ Verify installation:
 n42-edelivery --version
 ```
 
-## Commands
+## CLI Commands (local)
 
 ### `init`
 
@@ -148,7 +148,7 @@ Generate Peppol reporting data
 | `--from`        | Start date of the reporting period   |
 | `--to`          | End date of the reporting period     |
 
-## Usage
+### Usage
 
 Send a prepared document directly:
 
@@ -225,7 +225,7 @@ n42-edelivery validate peppol \
     --document "~/<path_to_document>/invoice.xml"
 ```
 
-## Replay
+### Replay
 
 The `replay` command resends a previously sent AS4 message byte-for-byte using its stored artefacts.
 ```bash
@@ -241,7 +241,7 @@ The original message headers, and body are loaded from disk and transmitted as-i
 - **The receiving Access Point (C3) must have duplicate message detection disabled before replaying**. \
 By default, most AS4 implementations reject messages with a previously seen message ID.
 
-## Persistence
+## Persistence (local)
 
 When `--persist` is enabled, the tool stores execution artefacts for later inspection.
 ```
@@ -260,7 +260,7 @@ When `--persist` is enabled, the tool stores execution artefacts for later inspe
                      └── <uuid>_as4_signal.json
 ```
 
-## Workspace
+## Workspace (local)
 
 Node42 stores runtime data, generated artefacts, certificates, and configuration in the user workspace located at `~/.node42`.
 

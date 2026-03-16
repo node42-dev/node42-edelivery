@@ -8,7 +8,9 @@
 
 import { getDbFile } from '../cli/paths.js';
 
-import { createSenderJsonFileAdapter } from './adapters/sender.json.db.js';
+import { createCliJsonFileAdapter } from './adapters/cli.json.db.js';
+import { createCliDynamoDbAdapter } from './adapters/cli.dynamo.db.js';
+
 import { createSenderDynamoDbAdapter } from './adapters/sender.dynamo.db.js';
 import { createSenderCosmosDbAdapter } from './adapters/sender.cosmos.db.js';
 
@@ -21,8 +23,8 @@ import {
 } from '../core/error.js';
 
 
-function createSenderDefaultAdapter() {
-  return createSenderJsonFileAdapter(getDbFile());
+function createDefaultAdapter() {
+  return createCliJsonFileAdapter(getDbFile());
 }
 
 async function isCosmosDbAvailable() {
@@ -57,7 +59,7 @@ export async function getDbAdapter(context) {
       try {
         const endpoint = context.runtimeEnv.get('COSMOS_ENDPOINT');
         const key      = context.runtimeEnv.get('COSMOS_KEY');
-        const database = context.runtimeEnv.get('COSMOS_DATABASE') ?? 'n42';
+        const database = context.runtimeEnv.get('COSMOS_DATABASE');
 
         const client = new CosmosClient({ endpoint, key });
         return await createReceiverCosmosDbAdapter(client, database);
@@ -73,10 +75,10 @@ export async function getDbAdapter(context) {
       try {
         const endpoint = context.runtimeEnv.get('COSMOS_ENDPOINT');
         const key      = context.runtimeEnv.get('COSMOS_KEY');
-        const database = context.runtimeEnv.get('COSMOS_DATABASE') ?? 'n42';
+        const database = context.runtimeEnv.get('COSMOS_DATABASE');
 
         const client = new CosmosClient({ endpoint, key });
-        return await createReceiverCosmosDbAdapter(client, database);
+        return await createSenderCosmosDbAdapter(client, database);
       }
       catch(e) {
         throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });
@@ -90,7 +92,7 @@ export async function getDbAdapter(context) {
         const isLocal = context.runtimeEnv.platform === null;
         const hasAccessKey = context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY') !== undefined;
         const client  = new DynamoDBClient({
-          region: context.runtimeEnv.get('AWS_REGION') ?? 'eu-north-1',
+          region: context.runtimeEnv.get('AWS_REGION'),
           ...(!hasAccessKey && isLocal && {
             credentials: fromIni({ profile: context.runtimeEnv.get('AWS_PROFILE') }),
           }),
@@ -115,7 +117,7 @@ export async function getDbAdapter(context) {
         const isLocal = context.runtimeEnv.platform === null;
         const hasAccessKey = context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY') !== undefined;
         const client  = new DynamoDBClient({
-          region: context.runtimeEnv.get('AWS_REGION') ?? 'eu-north-1',
+          region: context.runtimeEnv.get('AWS_REGION'),
           ...(!hasAccessKey && isLocal && {
             credentials: fromIni({ profile: context.runtimeEnv.get('AWS_PROFILE') }),
           }),
@@ -126,19 +128,45 @@ export async function getDbAdapter(context) {
             },
           }),
         });
-        return await createSenderDynamoDbAdapter(DynamoDBDocumentClient.from(client), context.runtimeEnv.get('N42_DB_TABLE'));
+        return await createSenderDynamoDbAdapter(DynamoDBDocumentClient.from(client));
       }
       catch {
-        return createSenderDefaultAdapter();
+        return createDefaultAdapter();
       }
     }
 
-    case 'sender-json-db': {
-      return createSenderJsonFileAdapter(getDbFile());
+    case 'cli-aws-dynamo-db': {
+      const { DynamoDBClient, DynamoDBDocumentClient, fromIni } = await isDynamoDbAvailable();
+
+      try {
+        const isLocal = context.runtimeEnv.platform === null;
+        const hasAccessKey = context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY') !== undefined;
+        const client  = new DynamoDBClient({
+          region: context.runtimeEnv.get('AWS_REGION'),
+          ...(!hasAccessKey && isLocal && {
+            credentials: fromIni({ profile: context.runtimeEnv.get('AWS_PROFILE') }),
+          }),
+          ...(hasAccessKey && {
+            credentials: {
+              accessKeyId: context.runtimeEnv.get('CLOUD_AWS_ACCESS_KEY'),
+              secretAccessKey: context.runtimeEnv.get('CLOUD_AWS_SECRET_KEY'),
+            },
+          }),
+        });
+        return await createCliDynamoDbAdapter(DynamoDBDocumentClient.from(client), context.runtimeEnv.get('N42_DB_TABLE_CLI'));
+      }
+      catch {
+        return createDefaultAdapter();
+      }
+    }
+
+
+    case 'cli-json-db': {
+      return createCliJsonFileAdapter(getDbFile());
     }
     
     default: {
-      return createSenderDefaultAdapter();
+      return createDefaultAdapter();
     }
   }
 }

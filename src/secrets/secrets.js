@@ -6,7 +6,7 @@
   SPDX-License-Identifier: AGPL-3.0-only
 */
 
-import { createReceiverAwsSecMgrAdapter } from './adapters/aws.secmgr.js';
+import { createReceiverAwsSecMgrAdapter } from './adapters/aws.sec.mgr.js';
 
 import { 
   N42Error, 
@@ -28,8 +28,12 @@ async function isAwsSecMgrAvailable() {
 }
 
 export async function getSecretsAdapter(context) {
-    const procEnvStorage = context.runtimeEnv.get('N42_SECRETS_ADAPTER');
-    switch(procEnvStorage) {
+    const procEnvSecrets = context.runtimeEnv.get('N42_SECRETS_ADAPTER');
+    if (!procEnvSecrets) {
+      throw new N42Error(N42ErrorCode.SECRETS_ERROR, { details: 'No secrets adapter configured — set N42_SECRETS_ADAPTER' });
+    }
+    
+    switch(procEnvSecrets) {
       case 'receiver-aws-sec-mgr': {
         const { SecretsManagerClient, fromIni } = await isAwsSecMgrAvailable();
 
@@ -52,12 +56,12 @@ export async function getSecretsAdapter(context) {
           return await createReceiverAwsSecMgrAdapter(client);
         }
         catch(e) {
-          throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message }); 
+          throw new N42Error(N42ErrorCode.SECRETS_ERROR, { details: e.message }); 
         }
       }
 
       default: {
-        return null;
+        throw new N42Error(N42ErrorCode.SECRETS_ERROR, { details: 'No secrets adapter configured — set N42_SECRETS_ADAPTER' });
       }
     }
 }

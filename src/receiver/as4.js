@@ -60,14 +60,14 @@ async function getSecrets(context) {
  * 4. Decrypt attachment (our private key)
  * 5. Decompress gzipped content
  * 6. Validate UBL business document
- * 7. Store message
+ * 7. Store transaction
  * 8. Return MDN (receipt/error)
  */
 
 export async function receiveAs4Message(context, event) {
   db = await getDb(context);
   storage = await getStorage(context);
-  secrets = await getSecrets(context);
+  //secrets = await getSecrets(context);
   
   const startTime = Date.now(); 
   
@@ -155,8 +155,8 @@ export async function receiveAs4Message(context, event) {
     console.log('Document Type:', validation.documentType);
     console.log('✓ Document: VALID');
     
-    // Step 6: Store message
-    console.log('[7/8] Storing message...');
+    // Step 6: Store transaction
+    console.log('[7/8] Storing Transaction...');
 
     await storage.store(context);
   
@@ -179,7 +179,7 @@ export async function receiveAs4Message(context, event) {
       createdAt:         context.timestamp,
     });
     
-    console.log('✓ Message stored');
+    console.log('✓ Transaction stored');
     
     // Step 7: Generate positive MDN (sender: parseAs4Signal)
     console.log('[8/8] Generating MDN receipt...');

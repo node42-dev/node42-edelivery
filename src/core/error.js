@@ -62,15 +62,16 @@ export const N42ErrorCode = Object.freeze({
   // Validation
   VALIDATION_FAILED:    { code: 12106, area: 'VAL',   http: 400,  message: 'Validation failed: {details}',             retryable: false },
   
-  // transaction
-  TRANSACTION_FAILED:    { code: 12108, area: 'TRX',   http: 400,  message: 'Transaction failed: {details}',           retryable: false },
+  // Transaction
+  TRANSACTION_FAILED:   { code: 12108, area: 'TRX',   http: 400,  message: 'Transaction failed: {details}',            retryable: false },
 
   // AWS
   SSO_SESSION_EXPIRED: { code: 9036,  area: "AUTH",  http: 500,  message: "SSO session expired: {details}",             retryable: false},
   
   // Storage
   DATABASE_ERROR:      { code: 8011,  area: "DB",  http: 500,  message: "Database error: {details}",                    retryable: false},
-  STORAGE_ERROR:       { code: 8012,  area: "ART",  http: 500,  message: "Storage error: {details}",                    retryable: false},
+  STORAGE_ERROR:       { code: 8012,  area: "ART", http: 500,  message: "Storage error: {details}",                     retryable: false},
+  SECRETS_ERROR:       { code: 8014,  area: "SEC", http: 500,  message: "Secrets error: {details}",                     retryable: false},
 
   NOT_IMPLEMENTED:     { code: 6126,  area: "SYS",  http: 500,  message: "Not implemented: {details}",                  retryable: false},
 });

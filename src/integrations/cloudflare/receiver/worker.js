@@ -13,7 +13,11 @@ import { receiveAs4Message } from '../../../receiver/as4.js';
 
 export default {
   async fetch(request, env, _ctx) {
-    const endpointPath = env.AP_INBOUND_PATH ?? '/as4';
+    const runtimeEnv = new N42Environment(env);
+    console.log('--- [ PLATFORM: ' + (runtimeEnv.platform ?? 'node') + ' ] ---');
+
+    const route = runtimeEnv.get('N42_RECEIVER_INBOUND_PATH', 'as4');
+    const endpointPath = `/${route}`;
     if (request.method !== 'POST' || new URL(request.url).pathname !== endpointPath) {
       return new Response('Not Found', { status: 404 });
     }
@@ -30,9 +34,6 @@ export default {
       headers, 
       body: rawBody,
     };
-
-    const runtimeEnv = new N42Environment(env);
-    console.log('--- [ PLATFORM: ' + (runtimeEnv.platform ?? 'node') + ' ] ---');
 
     const context = new N42Context({
         certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
