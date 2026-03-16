@@ -13,8 +13,7 @@ import {
 
 
 export async function createCliCosmosDbAdapter(client, databaseId = 'n42') {
-  let cosmos;
-  try { cosmos = await import('@azure/cosmos'); }
+  try { await import('@azure/cosmos'); }
   catch {
     throw new N42Error(N42ErrorCode.MODULE_NOT_FOUND, { details: "CosmosDB adapter requires Azure SDK — run: npm install @azure/cosmos" });
   }

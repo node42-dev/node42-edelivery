@@ -6,48 +6,49 @@
   SPDX-License-Identifier: AGPL-3.0-only
 */
 
-export const SOAP_ENV_NS = 'http://www.w3.org/2003/05/soap-envelope'
+export const XML_NS = 'http://www.w3.org/2000/xmlns/';
+export const SOAP_ENV_NS = 'http://www.w3.org/2003/05/soap-envelope';
 
 // ebMS 3.0 / AS4 core
-export const EBMS_NS = 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/'
-export const EBMS_ROLE_INIT = 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator'
-export const EBMS_ROLE_RESP = 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder'
+export const EBMS_NS = 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/';
+export const EBMS_ROLE_INIT = 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/initiator';
+export const EBMS_ROLE_RESP = 'http://docs.oasis-open.org/ebxml-msg/ebms/v3.0/ns/core/200704/responder';
 
 // WS-Security 1.0 / 1.1 base
-export const WSS_BASE = 'http://docs.oasis-open.org/wss/2004/01/'
-export const WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd'
-export const WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd'
-export const WSSE11_SECEXT_NS = 'http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd'
+export const WSS_BASE = 'http://docs.oasis-open.org/wss/2004/01/';
+export const WSSE_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-secext-1.0.xsd';
+export const WSU_NS = WSS_BASE + 'oasis-200401-wss-wssecurity-utility-1.0.xsd';
+export const WSSE11_SECEXT_NS = 'http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd';
 
 // XML Security
-export const DS_NS = 'http://www.w3.org/2000/09/xmldsig#'
-export const ENC_NS = 'http://www.w3.org/2001/04/xmlenc#'
-export const ENC11_NS = 'http://www.w3.org/2009/xmlenc11#'
+export const DS_NS = 'http://www.w3.org/2000/09/xmldsig#';
+export const ENC_NS = 'http://www.w3.org/2001/04/xmlenc#';
+export const ENC11_NS = 'http://www.w3.org/2009/xmlenc11#';
 
 // Digest & signature algorithms
-export const XML_AES128_GCM = "http://www.w3.org/2009/xmlenc11#aes128-gcm"
-export const XML_RSA_OAEP = 'http://www.w3.org/2009/xmlenc11#rsa-oaep'
-export const XML_MGF_SHA256 = 'http://www.w3.org/2009/xmlenc11#mgf1sha256'
-export const XML_SHA256 = 'http://www.w3.org/2001/04/xmlenc#sha256'
-export const XML_RSA_SHA256 = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+export const XML_AES128_GCM = "http://www.w3.org/2009/xmlenc11#aes128-gcm";
+export const XML_RSA_OAEP = 'http://www.w3.org/2009/xmlenc11#rsa-oaep';
+export const XML_MGF_SHA256 = 'http://www.w3.org/2009/xmlenc11#mgf1sha256';
+export const XML_SHA256 = 'http://www.w3.org/2001/04/xmlenc#sha256';
+export const XML_RSA_SHA256 = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256';
 
 // Canonicalization & transforms
-export const XML_CANONICAL_C14N = 'http://www.w3.org/2001/10/xml-exc-c14n#'
-export const SWA_ATT_SIG_TRANS = 'http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform'
-export const SWA_ATT_ENC_TRANS = 'http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Ciphertext-Transform'
+export const XML_CANONICAL_C14N = 'http://www.w3.org/2001/10/xml-exc-c14n#';
+export const SWA_ATT_SIG_TRANS = 'http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Signature-Transform';
+export const SWA_ATT_ENC_TRANS = 'http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Ciphertext-Transform';
 
 // Encoding & token types
-export const SWA_ATT_CONT_ONLY_TYPE='http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only'
-export const WSS11_ENC_KEY_TOKEN_TYPE='http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#EncryptedKey'
+export const SWA_ATT_CONT_ONLY_TYPE='http://docs.oasis-open.org/wss/oasis-wss-SwAProfile-1.1#Attachment-Content-Only';
+export const WSS11_ENC_KEY_TOKEN_TYPE='http://docs.oasis-open.org/wss/oasis-wss-soap-message-security-1.1#EncryptedKey';
 
-export const WSS_BASE64B_ENCODING_TYPE = WSS_BASE + 'oasis-200401-wss-soap-message-security-1.0#Base64Binary'
-export const WSS_X509TOKEN = WSS_BASE + 'oasis-200401-wss-x509-token-profile-1.0#X509v3'
+export const WSS_BASE64B_ENCODING_TYPE = WSS_BASE + 'oasis-200401-wss-soap-message-security-1.0#Base64Binary';
+export const WSS_X509TOKEN = WSS_BASE + 'oasis-200401-wss-x509-token-profile-1.0#X509v3';
 
 // Schematron Validation Report Language (SVRL) namespace
-export const SVRL_NS='http://purl.oclc.org/dsdl/svrl'
+export const SVRL_NS='http://purl.oclc.org/dsdl/svrl';
 
 // Standard Business Document Header (PEPPOL / eDelivery)
-export const SBDH_NS = 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader'
+export const SBDH_NS = 'http://www.unece.org/cefact/namespaces/StandardBusinessDocumentHeader';
 
 // Peppol Access Point
 export const PEPPOL_AS4 = {
@@ -77,7 +78,7 @@ export const EBMS_AS4_NAMESPACES = {
     'wsu': WSU_NS,
     'wsse': WSSE_NS,
     'stbh': SBDH_NS
-}
+};
 
 export const WSSEC_NAMESPACES = {
     'wsse11': WSSE11_SECEXT_NS,
@@ -85,12 +86,12 @@ export const WSSEC_NAMESPACES = {
     'xenc': ENC_NS,
     'xenc11': ENC11_NS,
     'ds': DS_NS
-}
+};
 
 export const SM_NAMESPACES = {
     'S12': SOAP_ENV_NS,
     'eb':  EBMS_NS,
-}
+};
 
 export const NS = {
   env:    SOAP_ENV_NS,

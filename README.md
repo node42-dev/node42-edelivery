@@ -257,7 +257,10 @@ When `--persist` is enabled, the tool stores execution artefacts for later inspe
                      ├── <uuid>_signing_input.txt
                      ├── <uuid>_message_headers.json
                      ├── <uuid>_message_body.txt
-                     └── <uuid>_as4_signal.json
+                     ├── <uuid>_response_headers.json
+                     ├── <uuid>_response_body.txt
+                     ├── <uuid>_as4_signal.xml
+                     └── <uuid>_as4_mdn.json
 ```
 
 ## Workspace (local)

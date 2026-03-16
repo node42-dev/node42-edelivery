@@ -198,12 +198,12 @@ export async function sendDocument(context, document) {
   context.receiverCert = receiverCert;
 
   /*
-    Validate the receiver certificate only in standard SMP mode.
+    Validate the receiver certificate.
     
-    If no probe cert_id is provided, the encryption certificate returned
+    If no PROBE certId is provided, the encryption certificate returned
     from SMP must be validated (including environment-specific checks).
     
-    In probe mode (cert_id set), certificate validation is intentionally
+    In PROBE mode (certId set), certificate validation is intentionally
     skipped because the certificate is dynamically generated and tied to
     the persisted private key for deterministic crypto testing.
   */

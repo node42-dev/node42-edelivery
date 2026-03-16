@@ -11,7 +11,7 @@ import fs      from 'fs';
 import { el, buildDigestReference, c14nDigest, c14nSignedInfo } from './xmlsig.js';
 import { parseCert } from './pki.js';
 import {
-  DS_NS, WSSE_NS, WSU_NS, ENC11_NS,
+  XML_NS, DS_NS, WSSE_NS, WSU_NS, ENC11_NS,
   SOAP_ENV_NS, XML_CANONICAL_C14N, XML_RSA_SHA256,
   XML_RSA_OAEP, XML_MGF_SHA256, XML_SHA256, XML_AES128_GCM,
   SWA_ATT_SIG_TRANS, SWA_ATT_ENC_TRANS,
@@ -21,9 +21,8 @@ import {
 
 
 export function addExtraNs(ns, node) {
-  const XMLNS = 'http://www.w3.org/2000/xmlns/';
   for (const [attr, uri] of Object.entries(ns)) {
-      node.setAttributeNS(XMLNS, `xmlns:${attr}`, uri);
+      node.setAttributeNS(XML_NS, `xmlns:${attr}`, uri);
   }
 }
 
@@ -72,8 +71,8 @@ export function signAs4Envelope(context, attachmentId, envelope, messaging, body
   const bodyHash      = c14nDigest(body);
 
   const signedInfo = doc.createElementNS(DS_NS, 'ds:SignedInfo');
-  signedInfo.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:ds',  DS_NS);
-  signedInfo.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:env', SOAP_ENV_NS);
+  signedInfo.setAttributeNS(XML_NS, 'xmlns:ds',  DS_NS);
+  signedInfo.setAttributeNS(XML_NS, 'xmlns:env', SOAP_ENV_NS);
 
   const c14nMethod = el(doc, 'ds', 'CanonicalizationMethod', { Algorithm: XML_CANONICAL_C14N });
   const inclNs     = doc.createElementNS('http://www.w3.org/2001/10/xml-exc-c14n#', 'ec:InclusiveNamespaces');

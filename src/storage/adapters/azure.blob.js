@@ -23,7 +23,7 @@ export async function createReceiverBlobAdapter(client) {
     throw new N42Error(N42ErrorCode.MODULE_NOT_FOUND, { details: "Blob adapter requires Azure SDK — run: npm install @azure/storage-blob" });
   }
   
-  const { BlobSASPermissions, generateBlobSASQueryParameters, StorageSharedKeyCredential } = blobCommands;
+  const { BlobSASPermissions, _generateBlobSASQueryParameters, _StorageSharedKeyCredential } = blobCommands;
 
   async function getUploadUrl(context) {
     const container = context.runtimeEnv.get('AZURE_BLOB_CONTAINER');

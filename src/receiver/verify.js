@@ -199,7 +199,7 @@ export async function verifyAs4Signature(envelope, _attachment) {
     return {
       valid: true,
       senderCN,
-      certificate: certPem,
+      senderCert: certPem,
     };
     
   } catch(e) {

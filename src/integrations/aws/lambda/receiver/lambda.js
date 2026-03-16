@@ -17,6 +17,7 @@ export const handler = async (event) => {
   console.log('--- [ PLATFORM: ' + (runtimeEnv.platform ?? 'node') + ' ] ---');
 
   const context = new N42Context({
+      role:       'receiver',
       certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
       schematron: '/var/task/src/assets/schematrons/billing',
       truststore: path.join(process.cwd(), 'src/assets/certs/truststore.pem'),

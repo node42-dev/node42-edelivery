@@ -38,27 +38,27 @@ export function printHeader(title) {
 }
 
 export function printPreflight(context) {
-  const env              = context.env            ?? 'test';
-  const ts               = context.timestamp      ?? '';
-  const sender           = context.senderId       ?? '';
-  const receiver         = context.receiverId     ?? '';
-  const fromAp           = context.fromPartyId    ?? '';
-  const toAp             = context.toPartyId      ?? '';
-  const docType          = context.documentType   ?? '';
-  const country          = context.senderCountry  ?? '';
-  const endpoint         = context.endpointUrl    ?? '';
-  const origEndpoint     = context.origEndpointUrl  ?? '';
-  const cert             = String(context.cert    ?? '');
-  const key              = String(context.key     ?? '');
-  const senderCert       = context.senderCert     ?? '';
-  const senderKey        = context.senderKey      ?? '';
-  const receiverCert     = context.receiverCert   ?? '';
-  const origReceiverCert = context.origReceiverCert ?? '';
-  const validationErrors = context.validationErrors ?? [];
-  const dryrun           = context.dryrun         ?? false;
-  const persist          = context.persist        ?? false;
-  const msgId            = context.id             ?? '';
-  const saxonAvailable   = context.saxonAvailable        ?? false;
+  const env              = context.env                ?? 'test';
+  const ts               = context.timestamp          ?? '';
+  const sender           = context.senderId           ?? '';
+  const receiver         = context.receiverId         ?? '';
+  const fromAp           = context.fromPartyId        ?? '';
+  const toAp             = context.toPartyId          ?? '';
+  const docType          = context.documentType       ?? '';
+  const country          = context.senderCountry      ?? '';
+  const endpoint         = context.endpointUrl        ?? '';
+  const origEndpoint     = context.origEndpointUrl    ?? '';
+  const cert             = String(context.cert        ?? '');
+  const key              = String(context.key         ?? '');
+  const senderCert       = context.senderCert         ?? '';
+  const senderKey        = context.senderKey          ?? '';
+  const receiverCert     = context.receiverCert       ?? '';
+  const origReceiverCert = context.origReceiverCert   ?? '';
+  const validationErrors = context.validationErrors   ?? [];
+  const dryrun           = context.dryrun             ?? false;
+  const persist          = context.persist            ?? false;
+  const msgId            = context.id                 ?? '';
+  const saxonAvailable   = context.saxonAvailable     ?? false;
 
   const timestamp = new Date(ts).toISOString().replace(/\.\d{3}Z$/, 'Z');
   const shortDoc  = docType ? docType.split('::')[0].split(':').pop() : '';
@@ -101,11 +101,17 @@ export function printPreflight(context) {
   row('           ',  key,                     C.GRAY);
   row(' ', '');
   row('Receiver Cert', getCertInfo(receiverCert), C.GRAY);
-  if (origReceiverCert) row('             ', getCertInfo(origReceiverCert), C.STRIKE);
+
+  if (origReceiverCert) {
+    row('             ', getCertInfo(origReceiverCert), C.STRIKE);
+  }
 
   section('Transport');
   row('Endpoint', endpoint || '— not found', endpoint ? C.DARK_GREEN : C.RED);
-  if (origEndpoint) row('        ', origEndpoint, C.STRIKE);
+  
+  if (origEndpoint) {
+    row('        ', origEndpoint, C.STRIKE);
+  }
 
   section('Pre-flight');
   const COL = 36;
@@ -166,17 +172,27 @@ export function printArtefacts(context) {
   const linkMessageBody = `\u001B]8;;file://${path.join(dir,`${context.id}_message_body.txt`)}\u0007View\u001B]8;;\u0007`;
   const linkSigningInput = `\u001B]8;;file://${path.join(dir,`${context.id}_signing_input.txt`)}\u0007View\u001B]8;;\u0007`;
   const linkEnvelope = `\u001B]8;;file://${path.join(dir,`${context.id}_soap_envelope.xml`)}\u0007View\u001B]8;;\u0007`;
-  const linkSignal = `\u001B]8;;file://${path.join(dir,`${context.id}_as4_signal.json`)}\u0007View\u001B]8;;\u0007`;
+
+  const linkResponseHeaders = `\u001B]8;;file://${path.join(dir,`${context.id}_response_headers.json`)}\u0007View\u001B]8;;\u0007`;
+  const linkResponseBody = `\u001B]8;;file://${path.join(dir,`${context.id}_response_body.txt`)}\u0007View\u001B]8;;\u0007`;
+  const linkSignal = `\u001B]8;;file://${path.join(dir,`${context.id}_as4_signal.xml`)}\u0007View\u001B]8;;\u0007`;
+  const linkMdn = `\u001B]8;;file://${path.join(dir,`${context.id}_as4_mdn.json`)}\u0007View\u001B]8;;\u0007`;
   
-  console.log(`${c(C.BOLD, "  ARTEFACTS")}`);
-  console.log(`  Context          [${c(C.BLUE, linkContext)}]`);
-  console.log(`  Document         [${c(C.BLUE, linkDocument)}]`);
-  console.log(`  Validation       [${c(C.BLUE, linkValidation)}]`);
-  console.log(`  SOAP Envelope    [${c(C.BLUE, linkEnvelope)}]`);
-  console.log(`  Signing Input    [${c(C.BLUE, linkSigningInput)}]`);
-  console.log(`  Message Headers  [${c(C.BLUE, linkMessageHeaders)}]`);
-  console.log(`  Message Body     [${c(C.BLUE, linkMessageBody)}]`);
-  console.log(`  Signal Message   [${c(C.BLUE, linkSignal)}]`);
+  console.log(`${c(C.BOLD, "  ARTEFACTS: OUTBOUND")}`);
+  console.log(`  Context            [${c(C.BLUE, linkContext)}]`);
+  console.log(`  Document           [${c(C.BLUE, linkDocument)}]`);
+  console.log(`  Validation         [${c(C.BLUE, linkValidation)}]`);
+  console.log(`  SOAP Envelope      [${c(C.BLUE, linkEnvelope)}]`);
+  console.log(`  Signing Input      [${c(C.BLUE, linkSigningInput)}]`);
+  console.log(`  Message Headers    [${c(C.BLUE, linkMessageHeaders)}]`);
+  console.log(`  Message Body       [${c(C.BLUE, linkMessageBody)}]`);
+  console.log();
+
+  console.log(`${c(C.BOLD, "  ARTEFACTS: INBOUND")}`);
+  console.log(`  Response Headers   [${c(C.BLUE, linkResponseHeaders)}]`);
+  console.log(`  Response Body      [${c(C.BLUE, linkResponseBody)}]`);
+  console.log(`  AS4 Signal         [${c(C.BLUE, linkSignal)}]`);
+  console.log(`  AS4 MDN            [${c(C.BLUE, linkMdn)}]`);
   console.log();
 }
 

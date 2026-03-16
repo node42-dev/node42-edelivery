@@ -47,14 +47,14 @@ export const N42ErrorCode = Object.freeze({
   DOC_NOT_FOUND:        { code: 21108, area: 'ART',  http: 400, message: 'Document not found: {details}',              retryable: false },
 
   // Certificates
-  CERT_EXPIRED:         { code: 11103, area: 'CERT', http: 400, message: 'Certificate has expired',                    retryable: false },
-  CERT_UNTRUSTED:       { code: 11104, area: 'CERT', http: 400, message: 'Certificate is not trusted',                 retryable: false },
+  CERT_EXPIRED:         { code: 11103, area: 'CERT', http: 400, message: 'Certificate has expired: {details}',         retryable: false },
+  CERT_NOT_TRUSTED:     { code: 11104, area: 'CERT', http: 400, message: 'Certificate is not trusted: {details}',      retryable: false },
   CERT_NOT_FOUND:       { code: 11105, area: 'CERT', http: 401, message: 'Certificate not found: {details}',           retryable: false },
   CERT_INVALID:         { code: 11106, area: 'CERT', http: 400, message: 'Certificate is invalid',                     retryable: false },
   KEY_NOT_FOUND:        { code: 11107, area: 'CERT', http: 400, message: 'Private key not found: {details}',           retryable: false },
 
   // Crypto
-  CRYPTO_FAILED:        { code: 19205, area: 'CRYPTO', http: 500, message: 'Cryptographic operation failed',           retryable: false },
+  CRYPTO_FAILED:        { code: 19205, area: 'CRYPTO', http: 500, message: 'Cryptographic operation failed: {details}', retryable: false },
 
   // Discovery
   DISCOVERY_FAILED:     { code: 12105, area: 'DISC',   http: 502, message: 'Discovery failed: {details}',              retryable: false },

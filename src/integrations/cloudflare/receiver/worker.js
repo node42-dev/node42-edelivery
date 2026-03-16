@@ -36,6 +36,7 @@ export default {
     };
 
     const context = new N42Context({
+        role:       'receiver',
         certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
         schematron: 'src/assets/schematrons/billing',
         truststore: 'src/assets/certs/truststore.pem',

@@ -9,22 +9,26 @@
 import crypto from 'crypto';
 import os from 'os';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
-import { el } from '../../src/security/xmlsig.js';
-import { EBMS_NS } from '../../src/core/constants.js';
+import { el, c14nDigest, c14nSignedInfo, buildDigestReference } from '../../src/security/xmlsig.js';
+import { XML_NS, EBMS_NS, DS_NS } from '../../src/core/constants.js';
 
 const parser = new DOMParser();
 const serializer = new XMLSerializer();
 
+
 /**
- * Generate AS4 MDN (Message Disposition Notification)
- * Reverses: parseAs4Signal from sender
- * 
- * Two types:
- * 1. Receipt (success) - isReceipt = true
- * 2. Error (failure) - errors array populated
- * 
- * Input: { refToMessageId, timestamp, status, errorCode?, errorMessage? }
- * Output: XML string (SOAP envelope with SignalMessage)
+ * Generate a signed AS4 MDN (Message Disposition Notification).
+ *
+ * @param {object}  options
+ * @param {string}  options.refToMessageId  - Message ID being acknowledged
+ * @param {string}  options.timestamp       - ISO 8601 timestamp
+ * @param {string}  options.status          - 'success' | 'error'
+ * @param {string}  [options.errorCode]     - EBMS error code (error only)
+ * @param {string}  [options.errorMessage]  - Human-readable error message (error only)
+ * @param {string}  [options.errorDetails]  - Additional error details (error only)
+ * @param {string}  [options.cert]          - AP certificate PEM (for signing)
+ * @param {string}  [options.key]           - AP private key PEM (for signing)
+ * @returns {string} Serialized SOAP envelope XML
  */
 export function generateMDN(options) {
   const {
@@ -34,6 +38,8 @@ export function generateMDN(options) {
     errorCode = null,
     errorMessage = null,
     errorDetails = null,
+    cert = null,
+    key = null,
   } = options;
   
   const hostname = os.hostname();
@@ -44,6 +50,10 @@ export function generateMDN(options) {
   
   // SignalMessage
   const signalMessage = e('ns2', 'SignalMessage');
+
+  // Give SignalMessage an Id for signing
+  const signalMsgId = `id-${crypto.randomUUID()}`;
+  signalMessage.setAttribute('Id', signalMsgId);
   
   // MessageInfo
   const msgInfo = e('ns2', 'MessageInfo');
@@ -113,7 +123,7 @@ export function generateMDN(options) {
   messaging.appendChild(signalMessage);
   
   // Add namespace declarations
-  messaging.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:ns2', EBMS_NS);
+  messaging.setAttributeNS(XML_NS, 'xmlns:ns2', EBMS_NS);
   
   // Body (empty for SignalMessage)
   const body = e('env', 'Body');
@@ -122,9 +132,15 @@ export function generateMDN(options) {
   const header = e('env', 'Header');
   header.appendChild(messaging);
   
+  // Sign if cert and key provided
+  if (cert && key) {
+    const signatureNode = buildMdnSignature(doc, signalMessage, signalMsgId, cert, key);
+    header.appendChild(signatureNode);
+  }
+
   // Envelope
   const envelope = e('env', 'Envelope');
-  envelope.setAttributeNS('http://www.w3.org/2000/xmlns/', 'xmlns:env', 'http://www.w3.org/2003/05/soap-envelope');
+  envelope.setAttributeNS(XML_NS, 'xmlns:env', 'http://www.w3.org/2003/05/soap-envelope');
   envelope.appendChild(header);
   envelope.appendChild(body);
   
@@ -135,5 +151,44 @@ export function generateMDN(options) {
   return xml;
 }
 
-// DS_NS for digital signature namespace
-const DS_NS = 'http://www.w3.org/2000/09/xmldsig#';
+function buildMdnSignature(doc, signalMessage, signalMsgId, certPem, keyPem) {
+  // Digest the SignalMessage
+  const digestValue = c14nDigest(signalMessage);
+
+  // Build SignedInfo
+  const signedInfo = el(doc, 'ds', 'SignedInfo');
+  signedInfo.appendChild(el(doc, 'ds', 'CanonicalizationMethod', {
+    Algorithm: 'http://www.w3.org/2001/10/xml-exc-c14n#'
+  }));
+  signedInfo.appendChild(el(doc, 'ds', 'SignatureMethod', {
+    Algorithm: 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha256'
+  }));
+  signedInfo.appendChild(buildDigestReference(
+    doc,
+    signalMsgId,
+    'http://www.w3.org/2001/10/xml-exc-c14n#',
+    digestValue
+  ));
+
+  // Sign SignedInfo
+  const c14nSignedInfoStr = c14nSignedInfo(signedInfo);
+  const signatureValue = crypto.sign('sha256', Buffer.from(c14nSignedInfoStr), keyPem).toString('base64');
+
+  // Extract cert (strip headers)
+  const certB64 = certPem.replace(/-----[^-]+-----/g, '').replace(/\s/g, '');
+
+  // Build Signature element
+  const signature = el(doc, 'ds', 'Signature');
+  signature.appendChild(signedInfo);
+  signature.appendChild(el(doc, 'ds', 'SignatureValue', {}, signatureValue));
+
+  const keyInfo = el(doc, 'ds', 'KeyInfo');
+  const secTokenRef = el(doc, 'wsse', 'SecurityTokenReference');
+  const x509Data = el(doc, 'ds', 'X509Data');
+  x509Data.appendChild(el(doc, 'ds', 'X509Certificate', {}, certB64));
+  keyInfo.appendChild(secTokenRef);
+  keyInfo.appendChild(x509Data);
+  signature.appendChild(keyInfo);
+
+  return signature;
+}

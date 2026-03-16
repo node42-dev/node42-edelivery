@@ -13,10 +13,10 @@
 | messageId | string | AS4 message ID |
 | timestamp | string | ISO 8601 timestamp |
 | certId | string | Certificate UUID |
-| cert | string | Path to AP certificate PEM file |
-| key | string | Path to AP private key PEM file |
-| truststore | string | Path to truststore PEM file |
+| cert | string | Path to AP certificate PEM |
+| key | string | Path to AP private key PEM |
 | keyPass | string | Private key passphrase |
+| truststore | string | Path to truststore PEM |
 | schematron | string\|array | Path to schematron validation files |
 | validationErrors | array | List of validation error messages |
 | senderId | string | Peppol participant ID of sender |
@@ -31,11 +31,12 @@
 | senderCert | string | PEM certificate of sender AP |
 | senderKey | string | PEM private key of sender AP |
 | receiverCert | string | PEM certificate of receiver AP |
-| origReceiverCert | string | Original receiver cert before redirect |
+| receiverKey | string | PEM private key of receiver AP |
+| hostname | string | Override hostname for AP endpoint |
 | endpointUrl | string | Resolved AS4 endpoint URL from SMP |
+| origReceiverCert | string | Original receiver cert before redirect |
 | origEndpointUrl | string | Original endpoint URL before redirect |
 | signalMessage | object | AS4 signal message (MDN/receipt) |
-| hostname | string | Override hostname for AP endpoint |
 | stripSbdh | boolean | Strip SBDH wrapper from document |
 | dryrun | boolean | Dry run mode, no actual sending |
 | persist | boolean | Persist transaction to storage |

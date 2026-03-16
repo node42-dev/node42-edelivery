@@ -350,7 +350,8 @@ export function buildAs4Request(context, document) {
 export async function sendAs4Message(context, headers, body) {
   const MAX_RETRIES  = 3;
   const RETRY_DELAYS = [5000, 30000, 120000]; // ms
-
+  
+  const outDir = getUserTransactionsDir();
   let lastError = null;
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -386,7 +387,23 @@ export async function sendAs4Message(context, headers, body) {
       continue;
     }
 
+    const responseHeaders = {};
+    for (const [key, value] of res.headers.entries()) {
+      responseHeaders[key] = value;
+    }
+
     context.spinner.done('Sent Message');
+
+    if (context.persist) {
+      fs.writeFileSync(
+        path.join(outDir, `${context.id}_response_headers.json`), 
+        JSON.stringify(responseHeaders, null, 2)
+      );
+      fs.writeFileSync(
+        path.join(outDir, `${context.id}_response_body.txt`),
+        resBody
+      );
+    }
 
     await saveTransaction(context);
 
@@ -402,9 +419,12 @@ export async function sendAs4Message(context, headers, body) {
     context.spinner.done('Parsed Response');
 
     if (context.persist) {
-      const outDir = getUserTransactionsDir();
       fs.writeFileSync(
-        path.join(outDir, `${context.id}_as4_signal.json`),
+        path.join(outDir, `${context.id}_as4_signal.xml`),
+        resBody
+      );
+      fs.writeFileSync(
+        path.join(outDir, `${context.id}_as4_mdn.json`),
         JSON.stringify(signal, null, 2)
       );
     }

@@ -33,7 +33,7 @@ export async function createCliDynamoDbAdapter(client, tableName) {
   catch {
     throw new N42Error(N42ErrorCode.MODULE_NOT_FOUND, { details: "DynamoDB adapter requires AWS SDK — run: npm install @aws-sdk/lib-dynamodb @aws-sdk/client-dynamodb" });
   }
-  const { PutCommand, GetCommand, DeleteCommand, QueryCommand } = commands;
+  const { PutCommand, DeleteCommand, QueryCommand } = commands;
 
   async function send(cmd) {
     try {

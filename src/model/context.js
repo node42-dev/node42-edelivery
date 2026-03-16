@@ -13,6 +13,7 @@ export class N42Context {
     this.command          = opts.command          ?? null;
     this.subcommand       = opts.subcommand       ?? null;
     
+    this.role             = opts.role             ?? 'sender';
     this.env              = opts.env              ?? 'test';
     this.runtimeEnv       = opts.runtimeEnv       ?? null;
     
@@ -27,8 +28,9 @@ export class N42Context {
     this.certId           = opts.certId           ?? null;
     this.cert             = opts.cert             ?? 'cert.pem';
     this.key              = opts.key              ?? 'key.pem';
-    this.truststore       = opts.truststore       ?? null;
     this.keyPass          = opts.keyPass          ?? 'peppol';
+    
+    this.truststore       = opts.truststore       ?? null;
     
     this.schematron       = opts.schematron       ?? [];
     this.validationErrors = opts.validationErrors ?? null;
@@ -40,19 +42,23 @@ export class N42Context {
     this.documentType     = opts.documentType     ?? null;
     this.processId        = opts.processId        ?? null;
     this.transportProfile = opts.transportProfile ?? null;
+
     this.fromPartyId      = opts.fromPartyId      ?? null;
     this.toPartyId        = opts.toPartyId        ?? null;
+    
     this.senderCert       = opts.senderCert       ?? null;
     this.senderKey        = opts.senderKey        ?? null;
     this.receiverCert     = opts.receiverCert     ?? null;
-    this.origReceiverCert = opts.origReceiverCert ?? null;
+    this.receiverKey      = opts.receiverKey      ?? null;
     
+    this.hostname         = opts.hostname         ?? null;
     this.endpointUrl      = opts.endpointUrl      ?? null;
+    
+    this.origReceiverCert = opts.origReceiverCert ?? null;
     this.origEndpointUrl  = opts.origEndpointUrl  ?? null;
     
     this.signalMessage    = opts.signalMessage    ?? null;
-    this.hostname         = opts.hostname         ?? null;
-    
+ 
     this.stripSbdh        = opts.stripSbdh        ?? null;
     this.dryrun           = opts.dryrun           ?? false;
     this.persist          = opts.persist          ?? false;

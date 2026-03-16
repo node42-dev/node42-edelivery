@@ -28,4 +28,6 @@ export async function createReceiverAwsSecMgrAdapter(client) {
     const response = await client.send(new GetSecretValueCommand({ SecretId: arn }));
     return response.SecretString;
   }
+
+  return { store, get }
 }

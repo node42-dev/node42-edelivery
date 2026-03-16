@@ -236,25 +236,32 @@ export function getTruststoreDetails(context) {
  * Throws N42Error on failure.
  */
 export function validateCert(context) {
-  
-  const subject = parseCert(context.receiverCert);
+  const certPem = context.role === 'receiver' 
+    ? context.senderCert      // validate the incoming sender's cert
+    : context.receiverCert;   // validate the outgoing receiver's cert
+
+  const cert = parseCert(certPem);
   const truststore = getTruststore(context);
 
   // Check expiry
   const now = new Date();
-  if (now < new Date(subject.validFrom) || now > new Date(subject.validTo)) {
-    throw new N42Error(N42ErrorCode.CERT_EXPIRED);
+  if (now < new Date(cert.validFrom) || now > new Date(cert.validTo)) {
+    throw new N42Error(N42ErrorCode.CERT_EXPIRED, { details: cert.validTo });
   }
 
   // Load trust roots and try to verify chain
+  if (!fs.existsSync(truststore)) {
+    throw new N42Error(N42ErrorCode.FILE_NOT_FOUND, { details: `Truststore not found at ${truststore}` });
+  }
+
   const truststorePem  = fs.readFileSync(truststore, 'utf-8');
   const pemBlocks   = truststorePem.match(/-----BEGIN CERTIFICATE-----[\s\S]+?-----END CERTIFICATE-----/g) || [];
 
   let trusted = false;
   for (const rootPem of pemBlocks) {
     try {
-      const root   = new crypto.X509Certificate(rootPem);
-      if (subject.verify(root.publicKey)) {
+      const root = new crypto.X509Certificate(rootPem);
+      if (cert.verify(root.publicKey)) {
         trusted = true;
         break;
       }
@@ -264,6 +271,7 @@ export function validateCert(context) {
   }
 
   if (!trusted) {
-    throw new N42Error(N42ErrorCode.CERT_UNTRUSTED);
+    const subject = extractCertFields(cert, 'subject');
+    throw new N42Error(N42ErrorCode.CERT_NOT_TRUSTED, { details: `CN: ${subject.CN}` });
   }
 }
