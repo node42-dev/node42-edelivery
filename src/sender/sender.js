@@ -260,6 +260,7 @@ export async function sendDocument(context, document) {
       id: context.id,
       sender: context.senderId,
       receiver: context.receiverId, 
+      endpoint: context.endpointUrl
     }));
   }
 

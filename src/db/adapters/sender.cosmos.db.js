@@ -35,7 +35,7 @@ export async function createSenderCosmosDbAdapter(client, databaseId = 'n42') {
         id: item.id,          // Cosmos DB requires 'id' field
         _pk: item.PK,         // partition key
       });
-      console.log('✓ Transaction stored to CosmosDB: ', item.id);
+      console.log('✓ Transaction stored to CosmosDB:', item.id);
     } catch(e) {
       console.error('CosmosDB storage failed:', e);
       throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });

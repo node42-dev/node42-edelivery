@@ -364,7 +364,7 @@ export async function sendAs4Message(context, headers, body) {
     }
 
     context.spinner.start('Sending Message        ');
-    context.timer.mark('Sending Message', false);
+    context.timer.mark(`Sending Message (${attempt})`, false);
 
     let res;
     try {

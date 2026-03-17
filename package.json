@@ -1,6 +1,6 @@
 {
   "name": "@n42/edelivery",
-  "version": "0.2.9",
+  "version": "0.2.12",
   "description": "Node42's pure Node.js eDelivery toolkit — SMP lookup, document validation and AS4 signing, encryption and sending. No Java, no third-party AP dependencies.",
   "keywords": [
     "peppol",

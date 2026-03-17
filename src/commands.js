@@ -160,9 +160,10 @@ export function registerCommands(program) {
             const replayInfo = JSON.parse(fs.readFileSync(replayFile, 'utf8').trim());
             const transactionId = id ? id : replayInfo.id;
 
-            console.log(`${c(C.BOLD, "Replaying message")}: ${transactionId}\n`)
-            console.log(`  Sender   : ${c(C.BLUE, getParticipantValue(replayInfo.sender))}`)
-            console.log(`  Receiver : ${c(C.BLUE, getParticipantValue(replayInfo.receiver))}\n`)
+            console.log(`${c(C.BOLD, "Replaying message")}: ${transactionId}\n`);
+            console.log(`  Sender   : ${c(C.BLUE, getParticipantValue(replayInfo.sender))}`);
+            console.log(`  Receiver : ${c(C.BLUE, getParticipantValue(replayInfo.receiver))}\n`);
+            console.log(`  Endpoint : ${c(C.DIM, getParticipantValue(replayInfo.endpoint))}\n`)
 
             spinner.start('Loading Context');
             const contextFile = path.join(srcDir, `${transactionId}_context.json`);
