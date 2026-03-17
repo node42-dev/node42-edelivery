@@ -65,8 +65,9 @@ export const SMP_NS = 'http://busdox.org/serviceMetadata/publishing/1.0/';
 export const WSA_NS = 'http://www.w3.org/2005/08/addressing';
 
 // UBL namespace constants
-export const CAC = 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2';
-export const CBC = 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2';
+export const UBL_NS  = 'urn:oasis:names:specification:ubl:schema:xsd:ApplicationResponse-2';
+export const CAC_NS  = 'urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2';
+export const CBC_NS  = 'urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2';
 
 // ────────────────────────────────────────────────────────────────
 // Convenience mappings
@@ -197,3 +198,18 @@ export const PEPPOL_REV_ORG_ID_TYPES = Object.fromEntries(
 
 export const PEPPOL_END_USER_STAT_SCH_XSLS  = ['peppol-end-user-statistics-reporting-1.1.4.xsl'];
 export const PEPPOL_TRANS_STAT_SCH_XSLS     = ['peppol-transaction-statistics-reporting-1.0.4.xsl'];
+
+// MLS Response Codes
+export const MLS_RESPONSE_CODE = {
+  ACCEPTED_WITH_CONFIRMATION:    'AP', // Delivered to C4 with confirmation
+  ACCEPTED_WITHOUT_CONFIRMATION: 'AB', // Delivered to C4 without confirmation  
+  REJECTED:                      'RE', // Rejected / delivery failed
+};
+
+// MLS Status Reason Codes
+export const MLS_STATUS_REASON = {
+  SCHEMA_VALIDATION:    'SV', // XML schema validation error
+  BUSINESS_VIOLATION:   'BV', // Business rule violation (fatal)
+  BUSINESS_WARNING:     'BW', // Business rule violation (warning)
+  DELIVERY_FAILED:      'FD', // Permanent delivery failure
+};

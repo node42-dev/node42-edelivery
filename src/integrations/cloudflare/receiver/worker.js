@@ -12,8 +12,8 @@ import { receiveAs4Message } from '../../../receiver/as4.js';
 
 
 export default {
-  async fetch(request, env, _ctx) {
-    const runtimeEnv = new N42Environment(env);
+  async fetch(request, env, ctx) {
+    const runtimeEnv = new N42Environment(env, ctx);
     console.log('--- [ PLATFORM: ' + (runtimeEnv.platform ?? 'node') + ' ] ---');
 
     const route = runtimeEnv.get('N42_RECEIVER_INBOUND_PATH', 'as4');

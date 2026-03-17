@@ -22,7 +22,8 @@ import { generateReports }   from './report.js';
 import { 
     checkRequired, 
     isValidDate,
-    normalizeFilename 
+    normalizeFilename,
+    getParticipantValue 
 } from './core/utils.js'
 
 import { 
@@ -148,17 +149,20 @@ export function registerCommands(program) {
         const srcDir = getUserTransactionsDir();
         try {
 
-            const replayFile = path.join(getUserHomeDir(), `replay.txt`);
+            const replayFile = path.join(getUserHomeDir(), `replay.json`);
             if (!fs.existsSync(replayFile)) {
                 throw new N42Error(N42ErrorCode.FILE_NOT_FOUND, 
                     { details: `: ${c(C.BOLD, replayFile)}` }, 
                     { retryable: false }
                 );
             }
-            const replayId = fs.readFileSync(replayFile, 'utf8').trim();
-            const transactionId = id ? id : replayId;
+
+            const replayInfo = JSON.parse(fs.readFileSync(replayFile, 'utf8').trim());
+            const transactionId = id ? id : replayInfo.id;
 
             console.log(`${c(C.BOLD, "Replaying message")}: ${transactionId}\n`)
+            console.log(`  Sender   : ${c(C.BLUE, getParticipantValue(replayInfo.sender))}`)
+            console.log(`  Receiver : ${c(C.BLUE, getParticipantValue(replayInfo.receiver))}\n`)
 
             spinner.start('Loading Context');
             const contextFile = path.join(srcDir, `${transactionId}_context.json`);
@@ -173,6 +177,7 @@ export function registerCommands(program) {
                     context.spinner = new Spinner();
                     context.persist = true;
                     context.runtimeEnv = runtimeEnv;
+                    context.timer = timer;
             
             spinner.done('Loaded Context');
 
@@ -202,9 +207,7 @@ export function registerCommands(program) {
 
             timer.mark('Initialized');
 
-            await sendAs4Message(context, headers, body); 
-
-            timer.mark('Replayed document');
+            await sendAs4Message(context, headers, body);
 
             if (context.persist) {
                 console.log();
@@ -341,6 +344,7 @@ export function registerCommands(program) {
             persist:       opts.persist   ?? false,
             verbose:       opts.verbose   ?? false,
             spinner,
+            timer,
             runtimeEnv,
         });
 
@@ -380,8 +384,6 @@ export function registerCommands(program) {
 
             await sendDocument(context, document);
             console.log();
-
-            timer.mark('Sent document');
 
             if (context.signalMessage) {
                 printSignalMessage(context);

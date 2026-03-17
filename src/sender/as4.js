@@ -364,6 +364,7 @@ export async function sendAs4Message(context, headers, body) {
     }
 
     context.spinner.start('Sending Message        ');
+    context.timer.mark('Sending Message', false);
 
     let res;
     try {
@@ -371,19 +372,25 @@ export async function sendAs4Message(context, headers, body) {
       const tid  = setTimeout(() => ctrl.abort(), context.timeout);
       res = await fetch(context.endpointUrl, { method: 'POST', headers, body, signal: ctrl.signal });
       clearTimeout(tid);
-    } catch(e) {
+    } 
+    catch(e) {
       context.spinner.fail('Sending Message');
       lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       continue;
     }
 
+    context.spinner.done('Sent Message');
+
     const resBody = await res.array?.() ?? Buffer.from(await res.arrayBuffer());
+    context.timer.mark('Received Response');
     
     if (!resBody.length || res.status >= 400) {
       const retryable = res.status >= 500;
       context.spinner.fail('Sending Message');
       lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: `HTTP ${res.status}` }, { url: context.endpointUrl, retryable });
-      if (!retryable) break;
+      if (!retryable) {
+        break;
+      }
       continue;
     }
 
@@ -391,8 +398,6 @@ export async function sendAs4Message(context, headers, body) {
     for (const [key, value] of res.headers.entries()) {
       responseHeaders[key] = value;
     }
-
-    context.spinner.done('Sent Message');
 
     if (context.persist) {
       fs.writeFileSync(
@@ -411,7 +416,8 @@ export async function sendAs4Message(context, headers, body) {
     let signal;
     try {
       signal = parseAs4Signal(resBody);
-    } catch(e) {
+    } 
+    catch(e) {
       context.spinner.fail('Parsing Response');
       lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: e.message }, { url: context.endpointUrl, retryable: true });
       continue;
@@ -440,6 +446,7 @@ export async function sendAs4Message(context, headers, body) {
     }
   }
 
+  context.spinner.fail('Sending Message');
   throw lastError;
 }
 /* eslint-enable no-await-in-loop */

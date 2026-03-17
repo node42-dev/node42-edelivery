@@ -278,7 +278,7 @@ Node42 stores runtime data, generated artefacts, certificates, and configuration
     ├── templates/
     ├── reports/ 
     ├── db.json
-    ├── replay.txt
+    ├── replay.json
     └── .env.test # or .env.prod
 ```
 This directory contains all local data required by the CLI, including cached artefacts, validation rules, certificates, templates, and execution history.

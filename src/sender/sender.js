@@ -120,6 +120,8 @@ export async function sendDocument(context, document) {
   context.validationErrors = await validateDocument(context, docBytes);
   context.spinner.done('Validated Document', context.validationErrors.length === 0);
 
+  context.timer.mark('Validated Document');
+
   // ── SMP lookup ────────────────────────────────────────────────────────────
   /*
     Query SMP for participant metadata.
@@ -155,6 +157,8 @@ export async function sendDocument(context, document) {
     throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: 'Receiver certificate' });
   }
   context.spinner.done('Found Participant');
+
+  context.timer.mark('SMP Lookup');
 
   // ── Load certificates ─────────────────────────────────────────────────────
   context.spinner.start('Processing Certificates');
@@ -248,10 +252,15 @@ export async function sendDocument(context, document) {
     const ctxOut = Object.fromEntries(
       Object.entries(context).filter(([k]) => !skip.has(k))
     );
+
     fs.writeFileSync(path.join(outDir, `${context.id}_context.json`),  JSON.stringify(ctxOut, null, 2));
     fs.writeFileSync(path.join(outDir, `${context.id}_validation.json`), JSON.stringify(context.validationErrors, null, 2));
 
-    fs.writeFileSync(path.join(getUserHomeDir(), 'replay.txt'), context.id);
+    fs.writeFileSync(path.join(getUserHomeDir(), 'replay.json'), JSON.stringify({
+      id: context.id,
+      sender: context.senderId,
+      receiver: context.receiverId, 
+    }));
   }
 
   printPreflight(context);
@@ -259,6 +268,8 @@ export async function sendDocument(context, document) {
   if (context.dryrun) return { body, headers, context };
 
   await waitForConfirm();
+  context.timer.mark('Preflight wait');
+
   context.signalMessage = await sendAs4Message(context, headers, body);
 
   return context;

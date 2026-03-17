@@ -9,19 +9,23 @@
 export class N42Timer {
   constructor() {
     this.times = [];
-    this.last = performance.now();
+    this.last = Date.now();
   }
 
-  mark(label) {
-    const now = performance.now();
-    this.times.push({ label, ms: (now - this.last).toFixed(0) });
+  mark(label, visible=true) {
+    const now = Date.now();
+    this.times.push({ 
+      label, 
+      ms: (now - this.last).toFixed(0),
+      visible 
+    });
     this.last = now;
   }
 
   done() {
     const total = this.times.reduce((sum, t) => sum + parseFloat(t.ms), 0);
     
-    console.table(this.times.map(t => ({
+    console.table(this.times.filter(t => t.visible).map(t => ({
       label: t.label,
       ms: t.ms,
       '%': ((parseFloat(t.ms) / total) * 100).toFixed(0),

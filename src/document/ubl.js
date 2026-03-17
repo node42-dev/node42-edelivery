@@ -12,7 +12,7 @@ import { randomUUID } from 'crypto';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 import { getParticipantValue }      from '../core/utils.js';
 import { getUserTemplatesDir }      from '../cli/paths.js';
-import { SBDH_NS, CAC, CBC }        from '../core/constants.js';
+import { SBDH_NS, CAC_NS, CBC_NS }        from '../core/constants.js';
 
 import { 
   N42Error, 
@@ -25,14 +25,14 @@ const serializer = new XMLSerializer();
 // ── UBL helpers ──────────────────────────────────────────────────────────────
 
 function cbc(doc, tag, text, attrs = {}) {
-  const el = doc.createElementNS(CBC, `cbc:${tag}`);
+  const el = doc.createElementNS(CBC_NS, `cbc:${tag}`);
   el.textContent = String(text);
   for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
   return el;
 }
 
 function cac(doc, tag) {
-  return doc.createElementNS(CAC, `cac:${tag}`);
+  return doc.createElementNS(CAC_NS, `cac:${tag}`);
 }
 
 function amount(doc, tag, val, currency) {
@@ -85,7 +85,7 @@ export function buildDocument(context) {
   const sellerCountry    = context.senderCountry ?? s.country ?? 'SE';
 
   const UBL   = context.documentType.split('::')[0];
-  const doc   = parser.parseFromString(`<Invoice xmlns="${UBL}" xmlns:cac="${CAC}" xmlns:cbc="${CBC}"/>`, 'application/xml');
+  const doc   = parser.parseFromString(`<Invoice xmlns="${UBL}" xmlns:cac="${CAC_NS}" xmlns:cbc="${CBC_NS}"/>`, 'application/xml');
   const root  = doc.documentElement;
 
   root.appendChild(cbc(doc, 'CustomizationID', 'urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0'));

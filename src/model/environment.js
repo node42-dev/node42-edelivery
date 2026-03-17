@@ -7,8 +7,9 @@
 */
 
 export class N42Environment {
-  constructor(env = null) {
+  constructor(env = null, ctx = null) {
     this._env = env;
+    this._ctx = ctx;
     this.platform = this.#detectPlatform();
     this.isServerless = !!this.platform;
     this._cache = new Map();
@@ -93,5 +94,38 @@ export class N42Environment {
 
   get isAws() {
     return this.platform === 'aws-lambda';
+  }
+
+  scheduleTask(promise) {
+    switch (this.platform) {
+      case 'cloudflare-workers': {
+        // ctx.waitUntil keeps worker alive after response
+        if (this._ctx?.waitUntil) {
+          this._ctx.waitUntil(promise);
+        } else {
+          console.warn('scheduleTask: no ctx available on Cloudflare');
+        }
+        break;
+      }
+
+      case 'aws-lambda': {
+        // Fire and forget — Lambda will freeze after response anyway
+        // Caller should use async Lambda invocation instead
+        promise.catch(e => console.error('scheduleTask failed:', e.message));
+        break;
+      }
+
+      case 'azure-functions': {
+        // Same as Lambda — fire and forget
+        promise.catch(e => console.error('scheduleTask failed:', e.message));
+        break;
+      }
+
+      default: {
+        // Local — just run it
+        promise.catch(e => console.error('scheduleTask failed:', e.message));
+        break;
+      }
+    }
   }
 }

@@ -10,62 +10,66 @@ import { randomUUID } from 'crypto';
 
 export class N42Context {
   constructor(opts = {}) {
-    this.command          = opts.command          ?? null;
-    this.subcommand       = opts.subcommand       ?? null;
+    this.command            = opts.command          ?? null;
+    this.subcommand         = opts.subcommand       ?? null;
     
-    this.role             = opts.role             ?? 'sender';
-    this.env              = opts.env              ?? 'test';
-    this.runtimeEnv       = opts.runtimeEnv       ?? null;
+    this.role               = opts.role             ?? 'sender';
+    this.env                = opts.env              ?? 'test';
+    this.runtimeEnv         = opts.runtimeEnv       ?? null;
     
-    this.document         = opts.document         ?? null;
-    this.ubl              = opts.ubl              ?? null;
+    this.document           = opts.document         ?? null;
+    this.ubl                = opts.ubl              ?? null;
     
-    this.id               = opts.id               ?? randomUUID();
-    this.userId           = opts.userId           ?? null;
-    this.messageId        = opts.messageId        ?? null;
-    this.timestamp        = opts.timestamp        ?? new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    this.id                 = opts.id               ?? randomUUID();
+    this.userId             = opts.userId           ?? null;
+    this.messageId          = opts.messageId        ?? null;
+    this.timestamp          = opts.timestamp        ?? new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
    
-    this.certId           = opts.certId           ?? null;
-    this.cert             = opts.cert             ?? 'cert.pem';
-    this.key              = opts.key              ?? 'key.pem';
-    this.keyPass          = opts.keyPass          ?? 'peppol';
+    this.certId             = opts.certId           ?? null;
+    this.cert               = opts.cert             ?? 'cert.pem';
+    this.key                = opts.key              ?? 'key.pem';
+    this.keyPass            = opts.keyPass          ?? 'peppol';
     
-    this.truststore       = opts.truststore       ?? null;
+    this.truststore         = opts.truststore       ?? null;
     
-    this.schematron       = opts.schematron       ?? [];
-    this.validationErrors = opts.validationErrors ?? null;
+    this.schematron         = opts.schematron       ?? [];
+    this.validationErrors   = opts.validationErrors ?? null;
     
-    this.senderId         = opts.senderId         ?? null;
-    this.receiverId       = opts.receiverId       ?? null;
-    this.senderCountry    = opts.senderCountry    ?? null;
-    this.receiverCountry  = opts.receiverCountry  ?? null;
-    this.documentType     = opts.documentType     ?? null;
-    this.processId        = opts.processId        ?? null;
-    this.transportProfile = opts.transportProfile ?? null;
+    this.senderId           = opts.senderId         ?? null;
+    this.receiverId         = opts.receiverId       ?? null;
+    this.senderCountry      = opts.senderCountry    ?? null;
+    this.receiverCountry    = opts.receiverCountry  ?? null;
+    this.documentType       = opts.documentType     ?? null;
+    this.processId          = opts.processId        ?? null;
+    this.transportProfile   = opts.transportProfile ?? null;
 
-    this.fromPartyId      = opts.fromPartyId      ?? null;
-    this.toPartyId        = opts.toPartyId        ?? null;
+    this.fromPartyId        = opts.fromPartyId      ?? null;
+    this.toPartyId          = opts.toPartyId        ?? null;
+
+    this.senderSpidScheme   = opts.senderSpidScheme ?? null;
+    this.receiverSpidScheme = opts.receiverSpidScheme ?? null;
     
-    this.senderCert       = opts.senderCert       ?? null;
-    this.senderKey        = opts.senderKey        ?? null;
-    this.receiverCert     = opts.receiverCert     ?? null;
-    this.receiverKey      = opts.receiverKey      ?? null;
+    this.senderCert         = opts.senderCert       ?? null;
+    this.senderKey          = opts.senderKey        ?? null;
+    this.receiverCert       = opts.receiverCert     ?? null;
+    this.receiverKey        = opts.receiverKey      ?? null;
     
-    this.hostname         = opts.hostname         ?? null;
-    this.endpointUrl      = opts.endpointUrl      ?? null;
+    this.hostname           = opts.hostname         ?? null;
+    this.endpointUrl        = opts.endpointUrl      ?? null;
     
-    this.origReceiverCert = opts.origReceiverCert ?? null;
-    this.origEndpointUrl  = opts.origEndpointUrl  ?? null;
+    this.origReceiverCert   = opts.origReceiverCert ?? null;
+    this.origEndpointUrl    = opts.origEndpointUrl  ?? null;
     
-    this.signalMessage    = opts.signalMessage    ?? null;
+    this.signalMessage      = opts.signalMessage    ?? null;
  
-    this.stripSbdh        = opts.stripSbdh        ?? null;
-    this.dryrun           = opts.dryrun           ?? false;
-    this.persist          = opts.persist          ?? false;
-    this.verbose          = opts.verbose          ?? false;
-    this.timeout          = opts.timeout          ?? 20000;
+    this.stripSbdh          = opts.stripSbdh        ?? null;
+    this.dryrun             = opts.dryrun           ?? false;
+    this.persist            = opts.persist          ?? false;
+    this.verbose            = opts.verbose          ?? false;
+    this.timeout            = opts.timeout          ?? 20000;
     
-    this.spinner          = opts.spinner          ?? null;
-    this.saxonAvailable   = opts.saxonAvailable   ?? false;
+    this.spinner            = opts.spinner          ?? null;
+    this.timer              = opts.timer            ?? null;
+    this.saxonAvailable     = opts.saxonAvailable   ?? false;
   }
 }
