@@ -20,10 +20,20 @@ import { sendAs4Message }    from './sender/as4.js';
 import { generateReports }   from './report.js';
 
 import { 
-    checkRequired, 
+  generateChain, 
+  generateIntermediateCa,
+  generateRootCa,
+  generateCert 
+} from './security/chain.js';
+
+import { 
     isValidDate,
     normalizeFilename,
-    getParticipantValue 
+    getParticipantValue, 
+    checkRequiredForSend, 
+    checkRequiredForCertChain,
+    checkRequiredForCertRoot,
+    checkRequiredForCertCa,
 } from './core/utils.js'
 
 import { 
@@ -49,7 +59,8 @@ import {
   initUserCerts, 
   initUserSchematrons, 
   initUserTemplates, 
-  destExists, 
+  destExists,
+  ensureDir, 
   initShellCompletion,
   getUserTransactionsDir,
   getUserValidationsDir,
@@ -94,7 +105,161 @@ export function registerCommands(program) {
         initShellCompletion();
     });
 
-    // ── creds ──────────────────────────────────────────────────────────────
+    // ── cert/chain ──────────────────────────────────────────────────────────────
+
+    const certCmd = program.command('cert').description('Certificate utilities');
+    const generateCmd = certCmd.command('generate').description('Generate certificates');
+    const peppolCert = generateCmd.command('peppol').description('Generate a Peppol-compatible certificate chain');
+
+    peppolCert
+    .option('--type <type>',      'Certificate type: chain | leaf | ca | root', 'chain')
+    .option('--service <name>',   'Service identifier (used in cert metadata)')
+    .option('--org <name>',       'Organization name(s) for certificate subject')
+    .option('--country <code>',   'Country code (ISO 3166-1 alpha-2, e.g. SE)')
+    .option('--dns-name <name>',  'DNS name / SAN entry for the certificate', 'ap.node42.xyz')
+    .option('--cn <name>',        'Common Name (CN) for the leaf certificate')
+    .option('--caCert <path>',    'CA Certtificate PEM path', 'ca.pem')
+    .option('--caKey <path>',     'CA Private Key PEM path', 'caKey.pem')
+    .option('--rootCert <path>',  'Root PEM path', 'root.pem')
+    .option('--rootKey <path>',   'Root Private Key PEM path', 'rootKey.pem')
+    .option('-v, --verbose',      'Enable detailed output')
+    .action((opts) => {  
+        const spinner = new Spinner();
+        const context = new N42Context({
+            role: 'sender',
+            spinner, 
+            verbose: opts.verbose   ?? false,
+            runtimeEnv,
+        });  
+
+        const { type } = opts;
+        printHeader(`Generating Certificate (type: ${type})`);
+
+        try {
+
+          switch(type) {
+            case 'chain': {
+              const missing = checkRequiredForCertChain(opts);
+              if (missing.length) {
+                  throw new N42Error(N42ErrorCode.INVALID_INPUT, { details: `Missing required field(s): ${c(C.BOLD, missing.join(', '))}` });
+              }
+
+              const { root, ica, leaf } = generateChain(opts.service, opts.org, opts.country, opts.cn ?? null, opts.dnsName);
+              const truststorePem = ica.certPem + root.certPem;
+
+              const outDir = ensureDir(path.join(getUserCertsDir(), leaf.commonName));
+              fs.writeFileSync(path.join(outDir, `truststore.pem`), truststorePem);
+              fs.writeFileSync(path.join(outDir, `cert.pem`), leaf.certPem);
+              fs.writeFileSync(path.join(outDir, `key.pem`), leaf.privKeyPem);
+              
+              context.cert = path.join(outDir, 'cert.pem');
+              context.key = path.join(outDir, 'key.pem');
+              context.truststore = path.join(outDir, 'truststore.pem');
+
+              context.senderCert = leaf.certPem;
+              context.senderKey = leaf.privKeyPem;
+
+              const certDetails = getCertDetails(context);
+              const keyDetails = getKeyDetails(context);
+              const truststoreDetails = getTruststoreDetails(context);
+
+              printCertInfo(certDetails, keyDetails, truststoreDetails, context.verbose);
+              break;
+            }
+
+            case 'root': {
+              const missing = checkRequiredForCertRoot(opts);
+              if (missing.length) {
+                  throw new N42Error(N42ErrorCode.INVALID_INPUT, { details: `Missing required field(s): ${c(C.BOLD, missing.join(', '))}` });
+              }
+              const root = generateRootCa({ org: opts.org, country: opts.country });
+              
+              const outDir = getUserCertsDir();
+              fs.writeFileSync(path.join(outDir, `root.pem`), root.certPem);
+              fs.writeFileSync(path.join(outDir, `rootKey.pem`), root.privKeyPem);
+              
+              context.truststore = path.join(outDir, 'root.pem');
+              const truststoreDetails = getTruststoreDetails(context);
+
+              printCertInfo(null, null, truststoreDetails, context.verbose);
+              break;
+            }
+
+            case 'ca': {
+              const missing = checkRequiredForCertCa(opts);
+              if (missing.length) {
+                  throw new N42Error(N42ErrorCode.INVALID_INPUT, { details: `Missing required field(s): ${c(C.BOLD, missing.join(', '))}` });
+              }
+
+              const rootPath = path.resolve(opts.rootCert);
+              if (!fs.existsSync(rootPath)) {
+                  throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Root certificate not present in ${c(C.BOLD, path.dirname(rootPath))}` });
+              }
+              const rootPem = fs.readFileSync(rootPath);
+
+              const rootKeyPath = path.resolve(opts.rootKey);
+              if (!fs.existsSync(rootKeyPath)) {
+                  throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `Root Private Key not present in ${c(C.BOLD, path.dirname(rootKeyPath))}` });
+              }
+              const rootPrivKeyPem = fs.readFileSync(rootKeyPath);
+             
+              const ica  = generateIntermediateCa({ service: opts.service, org: opts.org, country: opts.country, rootCertPem: rootPem, rootKeyPem: rootPrivKeyPem });
+            
+              const outDir = getUserCertsDir();  
+              fs.writeFileSync(path.join(outDir, `ca.pem`), ica.certPem);
+              fs.writeFileSync(path.join(outDir, `caKey.pem`), ica.privKeyPem);
+              
+              context.truststore = path.join(outDir, 'ca.pem');
+              const truststoreDetails = getTruststoreDetails(context);
+
+              printCertInfo(null, null, truststoreDetails, context.verbose);
+              break;
+            }
+
+            case 'leaf': {
+              const missing = checkRequiredForCertChain(opts);
+              if (missing.length) {
+                  throw new N42Error(N42ErrorCode.INVALID_INPUT, { details: `Missing required field(s): ${c(C.BOLD, missing.join(', '))}` });
+              }
+
+              const caPath = path.resolve(opts.caCert);
+              if (!fs.existsSync(caPath)) {
+                  throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `CA certificate not present in ${c(C.BOLD, path.dirname(caPath))}` });
+              }
+              const caPem = fs.readFileSync(caPath);
+
+              const caKeyPath = path.resolve(opts.caKey);
+              if (!fs.existsSync(caKeyPath)) {
+                  throw new N42Error(N42ErrorCode.CERT_NOT_FOUND, { details: `CA Private Key not present in ${c(C.BOLD, path.dirname(caKeyPath))}` });
+              }
+              const caPrivKeyPem = fs.readFileSync(caKeyPath);
+
+              const leaf = generateCert({ service: opts.service, org: opts.org, country: opts.country, cn: opts.cn ?? null, dnsName: opts.dnsName, caCertPem: caPem, caKeyPem: caPrivKeyPem });
+
+              const outDir = ensureDir(path.join(getUserCertsDir(), leaf.commonName));
+              fs.writeFileSync(path.join(outDir, `cert.pem`), leaf.certPem);
+              fs.writeFileSync(path.join(outDir, `key.pem`), leaf.privKeyPem);
+              
+              context.cert = path.join(outDir, 'cert.pem');
+              context.key = path.join(outDir, 'key.pem');
+
+              context.senderCert = leaf.certPem;
+              context.senderKey = leaf.privKeyPem;
+
+              const certDetails = getCertDetails(context);
+              const keyDetails = getKeyDetails(context);
+
+              printCertInfo(certDetails, keyDetails, null, context.verbose);
+              break;
+            }
+          }
+        }
+        catch(e) {
+            handleError(e);
+        }
+    });
+
+    // ── pki ──────────────────────────────────────────────────────────────
 
     program
     .command("pki")
@@ -103,6 +268,7 @@ export function registerCommands(program) {
     .action((opts) => {
         const spinner = new Spinner();
         const context = new N42Context({
+            role: 'sender',
             spinner, 
             verbose: opts.verbose   ?? false,
             runtimeEnv,
@@ -367,7 +533,7 @@ export function registerCommands(program) {
             } 
             else {
 
-                const missing = checkRequired(context);
+                const missing = checkRequiredForSend(opts);
                 if (missing.length) {
                     throw new N42Error(N42ErrorCode.INVALID_INPUT, { details: `Missing required field(s): ${c(C.BOLD, missing.join(', '))}` });
                 }
@@ -435,6 +601,8 @@ export function registerCommands(program) {
 
         try {
 
+            initUserSchematrons(context);
+
             spinner.start('Loading Document');
             if (!fs.existsSync(context.document) || fs.statSync(context.document).isDirectory()) {
                 spinner.fail('Loading Document Failed');
@@ -443,15 +611,9 @@ export function registerCommands(program) {
                     { retryable: false }
                 );
             }
-            const document = fs.readFileSync(context.document);
-            spinner.done('Loaded Document');
-
-            initUserSchematrons(context);
-
-            spinner.start('Validating Document');
-            const errors   = await validateDocument(context, document);
-            spinner.done('Validated Document', errors.length === 0);
-
+            
+            const errors = await validateDocument(context);
+           
             if (context.persist) {
                 const valDir = getUserValidationsDir();
                 const valPath = path.join(valDir, `${normalizeFilename(fileName)}_validation.json`)
@@ -474,6 +636,7 @@ export function registerCommands(program) {
             }
         }
         catch(e) {
+            spinner.fail('Loading Document Failed');
             handleError(e);
         }
     });

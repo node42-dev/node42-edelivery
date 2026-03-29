@@ -13,9 +13,11 @@ import { createCliDynamoDbAdapter } from './adapters/cli.dynamo.db.js';
 
 import { createSenderDynamoDbAdapter } from './adapters/sender.dynamo.db.js';
 import { createSenderCosmosDbAdapter } from './adapters/sender.cosmos.db.js';
+import { createSenderD1Adapter }       from './adapters/sender.d1.db.js';
 
 import { createReceiverDynamoDbAdapter } from './adapters/receiver.dynamo.db.js';
 import { createReceiverCosmosDbAdapter } from './adapters/receiver.cosmos.db.js';
+import { createReceiverD1Adapter }       from './adapters/receiver.d1.db.js';
 
 import { 
   N42Error, 
@@ -53,6 +55,25 @@ async function isDynamoDbAvailable() {
 export async function getDbAdapter(context) {
   const procEnvDb = context.runtimeEnv.get('N42_DB_ADAPTER');
   switch(procEnvDb) {
+
+    case 'receiver-cf-d1-db': {
+      try {
+        return createReceiverD1Adapter(context.runtimeEnv.get('D1_BINDING'));
+      }
+      catch(e) {
+        throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });
+      }
+    }
+    
+    case 'sender-cf-d1-db': {
+      try {
+        return createSenderD1Adapter(context.runtimeEnv.get('D1_BINDING'));
+      }
+      catch(e) {
+        throw new N42Error(N42ErrorCode.DATABASE_ERROR, { details: e.message });
+      }
+    }
+
     case 'receiver-azure-cosmos-db': {
       const { CosmosClient } = await isCosmosDbAvailable();
 

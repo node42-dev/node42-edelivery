@@ -116,9 +116,7 @@ export async function sendDocument(context, document) {
     This allows controlled interoperability testing even with invalid
     documents, while still preserving full validation traceability.
   */
-  context.spinner.start('Validating Document');
   context.validationErrors = await validateDocument(context, docBytes);
-  context.spinner.done('Validated Document', context.validationErrors.length === 0);
 
   context.timer.mark('Validated Document');
 

@@ -4,20 +4,20 @@
 |---|---|---|
 | command | string | CLI command name |
 | subcommand | string | CLI subcommand name |
-| env | string | Environment: `test` or `production` |
-| runtimeEnv | object | N42Environment instance |
-| document | Buffer | Path to UBL XML document |
+| env | string | Environment: **test** or **production** |
+| runtimeEnv | object | `N42Environment` instance |
+| document | Buffer | UBL XML document |
 | ubl | object | Path to UBL document descriptor |
 | id | string | Unique transaction UUID |
-| userId | string | Peppol participant ID of the local user |
+| userId | string | Node42 account identifier UUID |
 | messageId | string | AS4 message ID |
 | timestamp | string | ISO 8601 timestamp |
-| certId | string | Certificate UUID |
+| certId | string | Node42 Probe Certificate UUID |
 | cert | string | Path to AP certificate PEM |
 | key | string | Path to AP private key PEM |
 | keyPass | string | Private key passphrase |
 | truststore | string | Path to truststore PEM |
-| schematron | string\|array | Path to schematron validation files |
+| schematron | string\|array | Path to schematron files |
 | validationErrors | array | List of validation error messages |
 | senderId | string | Peppol participant ID of sender |
 | receiverId | string | Peppol participant ID of receiver |
@@ -28,6 +28,8 @@
 | transportProfile | string | AS4 transport profile URN |
 | fromPartyId | string | AS4 From PartyId |
 | toPartyId | string | AS4 To PartyId |
+| senderSpidScheme | string | SPIS ICD from OpenPeppol |
+| receiverSpidScheme | string | SPIS ICD from OpenPeppol |
 | senderCert | string | PEM certificate of sender AP |
 | senderKey | string | PEM private key of sender AP |
 | receiverCert | string | PEM certificate of receiver AP |

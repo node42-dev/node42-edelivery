@@ -105,9 +105,13 @@ export function getKeyInfo(keyPath) {
  * Return full certificate info for CLI display.
  */
 export function getCertDetails(context) {
-  if (!context.senderCert) return null;
+   const certPem = context.role === 'receiver' 
+    ? context.receiverCert
+    : context.senderCert;
 
-  const cert       = parseCert(context.senderCert);
+  if (!certPem) return null;
+
+  const cert       = parseCert(certPem);
   const now        = new Date();
   const validTo    = new Date(cert.validTo);
   const validFrom  = new Date(cert.validFrom);
@@ -136,21 +140,25 @@ export function getCertDetails(context) {
  * Return full private key info for CLI display.
  */
 export function getKeyDetails(context) {
-  if (!context.senderKey) return null;
+  const keyPem = context.role === 'receiver' 
+    ? context.receiverKey
+    : context.senderKey;
 
-  const pemStr = Buffer.isBuffer(context.senderKey) ? context.senderKey.toString('utf-8') : context.senderKey;
+  if (!keyPem) return null;
+
+  const keyStr = Buffer.isBuffer(keyPem) ? keyPem.toString('utf-8') : keyPem;
 
   let keyObj;
   let passwordProtected = false;
 
   try {
-    keyObj = crypto.createPrivateKey(pemStr);
+    keyObj = crypto.createPrivateKey(keyStr);
   } catch(e) {
     if (e.message.includes('encrypted')) {
       passwordProtected = true;
       if (context?.keyPass) {
         try {
-          keyObj = crypto.createPrivateKey({ key: pemStr, passphrase: context.keyPass });
+          keyObj = crypto.createPrivateKey({ key: keyStr, passphrase: context.keyPass });
         } catch {
           return {
             type:              null,

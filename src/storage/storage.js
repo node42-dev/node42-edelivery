@@ -8,6 +8,7 @@
 
 import { createReceiverS3Adapter }    from './adapters/aws.s3.js';
 import { createReceiverBlobAdapter }  from './adapters/azure.blob.js';
+import { createReceiverR2Adapter }    from './adapters/cf.r2.js';
 
 import { 
   N42Error, 
@@ -46,6 +47,15 @@ export async function getStorageAdapter(context) {
     }
 
     switch(procEnvStorage) {
+        case 'receiver-cf-r2': {
+            try {
+                return await createReceiverR2Adapter(context.runtimeEnv.get('R2_BINDING'));
+            }
+            catch(e) {
+                throw new N42Error(N42ErrorCode.STORAGE_ERROR, { details: e.message });
+            }
+        }
+
         case 'receiver-azure-blob': {
             const { BlobServiceClient } = await isBlobAvailable();
             try {

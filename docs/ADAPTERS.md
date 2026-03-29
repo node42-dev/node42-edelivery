@@ -1,27 +1,27 @@
 ## Database Adapter Support
 
-| Method | cli-json-db | cli-aws-dynamo-db | sender-aws-dynamo-db | sender-azure-cosmos-db | receiver-aws-dynamo-db | receiver-azure-cosmos-db |
-|--------|-------------|-------------------|----------------------|------------------------|------------------------|--------------------------|
-| `insert` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| `update` | ✅ | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| `upsert` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `replace` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `set` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `remove` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `clear` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `getAll` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `getOne` | ❌ | ❌ | ✅ | ✅ |  ✅ | ✅ |
-| `find` | ✅ | ✅ | 🚧 | 🚧 | 🚧 | 🚧 |
-| `artefactsByParticipant` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ |
-| `invalidateArtefactIndex` | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| Method | cli-json-db | cli-aws-dynamo-db | sender-aws-dynamo-db | sender-azure-cosmos-db | sender-cf-d1-db | receiver-aws-dynamo-db | receiver-azure-cosmos-db | receiver-cf-d1-db |
+|--------|-------------|-------------------|----------------------|------------------------|-----------------|------------------------|--------------------------|-------------------|
+| `insert` | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| `update` | ✅ | ✅ | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
+| `upsert` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `replace` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `set` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `remove` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `clear` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `getAll` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `getOne` | ❌ | ❌ | ✅ | ✅ |  ✅ | ✅ | ✅ | ✅ |
+| `find` | ✅ | ✅ | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 | 🚧 |
+| `artefactsByParticipant` | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| `invalidateArtefactIndex` | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
 ## Storage Adapter Support
 
-| Method | receiver-aws-s3 | receiver-azure-blob |
-|--------|-----------------|---------------------|
-| `store` | ✅ | ✅ |
-| `get` | ✅ | ✅ |
-| `getUploadUrl` | ✅ | ✅ |
+| Method | receiver-aws-s3 | receiver-azure-blob | receiver-cf-r2 |
+|--------|-----------------|---------------------|----------------|
+| `store` | ✅ | ✅ | ✅ |
+| `get` | ✅ | ✅ | ✅ |
+| `getUploadUrl` | ✅ | ✅ | ✅ |
 
 ## Secrets Adapter Support
 

@@ -197,37 +197,39 @@ export function printArtefacts(context) {
 }
 
 export function printCertInfo(certDetails, keyDetails = null, truststoreDetails = null, verbose = false) {
-  const certExpiry = certDetails.expired
-    ? c(C.RED,    `✗ expired`)
-    : certDetails.expiringSoon
-      ? c(C.YELLOW, `⚠ ${certDetails.daysLeft} days left`)
-      : c(C.DARK_GREEN, `✓ ${certDetails.daysLeft} days left`);
-
   console.log();
   console.log(`  ${c(C.BOLD, 'CERTIFICATE')}`);
   divider();
 
-  section('Subject');
-  row('CN',      certDetails.cn);
-  for (const line of certDetails.subject.split('\n')) {
-    const [k, ...v] = line.split('=');
-    if (['O', 'OU', 'C'].includes(k?.trim()))
-      row(k.trim(), v.join('=').trim(), C.GRAY);
+  if (certDetails) {
+    const certExpiry = certDetails.expired
+      ? c(C.RED,    `✗ expired`)
+      : certDetails.expiringSoon
+        ? c(C.YELLOW, `⚠ ${certDetails.daysLeft} days left`)
+        : c(C.DARK_GREEN, `✓ ${certDetails.daysLeft} days left`);
+
+    section('Subject');
+    row('CN',      certDetails.cn);
+    for (const line of certDetails.subject.split('\n')) {
+      const [k, ...v] = line.split('=');
+      if (['O', 'OU', 'C'].includes(k?.trim()))
+        row(k.trim(), v.join('=').trim(), C.GRAY);
+    }
+
+    section('Issuer');
+    for (const line of certDetails.issuer.split('\n')) {
+      const [k, ...v] = line.split('=');
+      if (k?.trim()) row(k.trim(), v.join('=').trim(), C.GRAY);
+    }
+
+    section('Validity');
+    row('Valid From', certDetails.validFrom);
+    row('Valid To',   certDetails.validTo);
+    row('Status',     certExpiry);
+
+    section('Fingerprint');
+    row('SHA-256', certDetails.fingerprint, C.DIM);
   }
-
-  section('Issuer');
-  for (const line of certDetails.issuer.split('\n')) {
-    const [k, ...v] = line.split('=');
-    if (k?.trim()) row(k.trim(), v.join('=').trim(), C.GRAY);
-  }
-
-  section('Validity');
-  row('Valid From', certDetails.validFrom);
-  row('Valid To',   certDetails.validTo);
-  row('Status',     certExpiry);
-
-  section('Fingerprint');
-  row('SHA-256', certDetails.fingerprint, C.DIM);
 
   if (keyDetails) {
     section('Private Key');
@@ -273,10 +275,11 @@ export function printCertInfo(certDetails, keyDetails = null, truststoreDetails 
   divider();
 
   section('Locations');
-  row('Certificate', certDetails.path, C.DIM);
-  row('Provate Key', keyDetails.path, C.DIM);
-  row('Truststore', truststoreDetails.path, C.DIM);
 
+  if (certDetails) { row('Certificate', certDetails.path, C.DIM); }
+  if (keyDetails) { row('Provate Key', keyDetails.path, C.DIM); }
+  if (truststoreDetails) { row('Truststore', truststoreDetails.path, C.DIM); }
+  
   console.log();
 }
 

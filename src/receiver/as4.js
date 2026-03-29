@@ -3,11 +3,12 @@
   Copyright (C) 2026 Node42 (www.node42.dev)
   Email: a1exnd3r@node42.dev
   GitHub: https://github.com/node42-dev
-  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-License-Identifier: AGPL-3.0-only
 */
 
 import { decompressDocument } from '../security/crypto.js';
 import { parseCert, extractCertFields, validateCert } from '../security/pki.js';
+import { createSoapHttpResponse } from '../core/utils.js'
 
 import { parseAs4Message } from './parse.js';
 import { verifyAs4Signature } from './verify.js';
@@ -75,17 +76,6 @@ async function getSecrets(context) {
   return secrets;
 }
 */
-
-function createSoapHttpResponse(body, statusCode = 200) {
-  return {
-    statusCode,
-    headers: {
-      'Content-Type': 'application/soap+xml; charset=utf-8',
-      'Content-Length': String(Buffer.byteLength(body, 'utf-8')),
-    },
-    body,
-  };
-}
 
 /*
   Cryptographic Processing Order

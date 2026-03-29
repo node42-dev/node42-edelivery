@@ -8,7 +8,6 @@
 
 import { N42Context } from '../../../model/context.js';
 import { N42Environment } from '../../../model/environment.js';
-import { receiveAs4Message } from '../../../receiver/as4.js';
 
 
 export default {
@@ -16,7 +15,7 @@ export default {
     const runtimeEnv = new N42Environment(env, ctx);
     console.log('--- [ PLATFORM: ' + (runtimeEnv.platform ?? 'node') + ' ] ---');
 
-    const route = runtimeEnv.get('N42_RECEIVER_INBOUND_PATH', 'as4');
+    const route = runtimeEnv.get('N42_SENDER_INBOUND_PATH', 'as4');
     const endpointPath = `/${route}`;
     if (request.method !== 'POST' || new URL(request.url).pathname !== endpointPath) {
       return new Response('Not Found', { status: 404 });
@@ -36,19 +35,14 @@ export default {
     };
 
     const context = new N42Context({
-        role:       'receiver',
-        certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
-        schematron: 'src/assets/schematrons/billing',
-        truststore: 'src/assets/certs/truststore.pem',
-        env:        runtimeEnv.get('N42_ENV'),
-        runtimeEnv,
+      role:       'sender',
+      certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
+      schematron: 'src/assets/schematrons/billing',
+      truststore: 'src/assets/certs/truststore.pem',
+      env:        runtimeEnv.get('N42_ENV'),
+      runtimeEnv,
     });
-    
-    const result = await receiveAs4Message(context, event);
 
-    return new Response(result.body, {
-      status: result.statusCode,
-      headers: result.headers,
-    });
+    return new Response('Not Implemented', { status: 501 });
   }
 }

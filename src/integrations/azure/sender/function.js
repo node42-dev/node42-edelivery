@@ -9,11 +9,10 @@
 import { app } from '@azure/functions';
 import { N42Context } from '../../../model/context.js';
 import { N42Environment } from '../../../model/environment.js';
-import { receiveAs4Message } from '../../../receiver/as4.js';
 
-const route = process.env.N42_RECEIVER_INBOUND_PATH ?? 'as4';
+const route = process.env.N42_SENDER_INBOUND_PATH ?? 'as4';
 
-app.http('node42-transaction-receiver', {
+app.http('node42-transaction-sender', {
   methods: ['POST'],
   authLevel: 'anonymous',
   route,
@@ -37,19 +36,16 @@ app.http('node42-transaction-receiver', {
 
       const context = new N42Context({
         role:       'receiver',
-        certId:     runtimeEnv.get('N42_RECEIVER_CERT_ID'),
+        certId:     runtimeEnv.get('N42_SENDER_CERT_ID'),
         schematron: 'src/assets/schematrons/billing',
         truststore: 'src/assets/certs/truststore.pem',
         env:        runtimeEnv.get('N42_ENV'),
         runtimeEnv,
       });
 
-      const result = await receiveAs4Message(context, event);
-
       return {
-        status: result.statusCode,
-        headers: result.headers,
-        body: result.body,
+        status: 501,
+        body: 'Not Implemented',
       };
     } 
     catch(e) {

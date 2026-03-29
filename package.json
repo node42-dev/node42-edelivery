@@ -1,6 +1,6 @@
 {
   "name": "@n42/edelivery",
-  "version": "0.2.12",
+  "version": "0.2.62",
   "description": "Node42's pure Node.js eDelivery toolkit — SMP lookup, document validation and AS4 signing, encryption and sending. No Java, no third-party AP dependencies.",
   "keywords": [
     "peppol",
@@ -30,7 +30,7 @@
     "test:watch": "node --test --watch test/*.test.js",
     "test:coverage": "c8 --reporter=text-summary --reporter=lcov node --test test/*.test.js",
     "start": "node dist/n42-edelivery",
-    "build": "esbuild src/cli.js --bundle --platform=node --format=cjs --outfile=dist/n42-edelivery.cjs --define:import.meta.url=__filename --banner:js='#!/usr/bin/env node' && mkdir -p dist/assets dist/completion && cp -rf src/assets/* dist/assets && cp -rf src/completion/* dist/completion",
+    "build": "esbuild src/cli.js --bundle --platform=node --format=cjs --outfile=dist/n42-edelivery.cjs --define:import.meta.url=__filename --banner:js='#!/usr/bin/env node' && mkdir -p dist/assets dist/completion && cp -rf src/assets/* dist/assets && cp -rf src/completion/* dist/completion && cp -rf src/document/saxon.worker.js dist/",
     "prepublishOnly": "npm run build"
   },
   "types": "./src/index.d.ts",
@@ -51,9 +51,9 @@
   },
   "peerDependencies": {
     "@aws-sdk/client-dynamodb": "^3",
+    "@aws-sdk/client-s3": "^3",
     "@aws-sdk/credential-provider-ini": "^3",
-    "@aws-sdk/lib-dynamodb": "^3",
-    "@aws-sdk/client-s3": "^3"
+    "@aws-sdk/lib-dynamodb": "^3"
   },
   "peerDependenciesMeta": {
     "@aws-sdk/client-dynamodb": {
@@ -73,8 +73,10 @@
     "@xmldom/xmldom": "^0.9.4",
     "commander": "^12.1.0",
     "dotenv": "^17.3.1",
+    "fast-xml-parser": "^5.5.9",
     "hi-base32": "^0.5.1",
     "node-fetch": "^3.3.2",
+    "node-forge": "^1.3.3",
     "saxon-js": "^2.7.0",
     "xml-crypto": "^6.1.2",
     "xml-formatter": "^3.6.7"

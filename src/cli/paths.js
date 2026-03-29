@@ -23,7 +23,7 @@ const __dirname = typeof import.meta.url !== 'undefined' && import.meta.url
 
 export const getN42Home = () => path.join(os.homedir(), '.node42');
 
-function ensureDir(dir) {
+export function ensureDir(dir) {
   try { fs.mkdirSync(dir, { recursive: true }); }
   catch { return null; }
   return dir;
@@ -50,6 +50,8 @@ export function getUserValidationsDir()  { return ensureDir(path.join(getN42Home
 export function getDbFile()              { return path.join(getN42Home(), 'db.json'); }
 export function getTokensFile()          { return path.join(getN42Home(), 'tokens.json'); }
 export function getConfigFile()          { return path.join(getN42Home(), 'config.json'); }
+
+export function getSaxonWorkerPath()     { return path.join(__dirname, 'saxon.worker.js'); }
 
 
 export function initWorkspace(force = false) {
@@ -93,7 +95,6 @@ export function initUserSchematrons(context, force = false) {
       count++;
     }
   }
-
   if (force) context.spinner.done(`Loaded Schematrons (${count})`);
 }
 

@@ -379,8 +379,6 @@ export async function sendAs4Message(context, headers, body) {
       continue;
     }
 
-    context.spinner.done('Sent Message');
-
     const resBody = await res.array?.() ?? Buffer.from(await res.arrayBuffer());
     context.timer.mark('Received Response');
     
@@ -393,6 +391,8 @@ export async function sendAs4Message(context, headers, body) {
       }
       continue;
     }
+
+    context.spinner.done('Sent Message');
 
     const responseHeaders = {};
     for (const [key, value] of res.headers.entries()) {

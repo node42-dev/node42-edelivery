@@ -67,20 +67,31 @@ COSMOS_ENDPOINT=https://<your-account.documents.azure.com>:443/
 COSMOS_DATABASE=<your-database>
 COSMOS_KEY=<your-key>
 
+# Receiver D1 DB
+N42_DB_ADAPTER=receiver-cf-d1-db
+
 # Storage adapter (required regardless of database adapter)
-N42_STORAGE_ADAPTER=<your_storage_adapter>
+N42_STORAGE_ADAPTER=<your-storage-adapter>
+
+# Credentials for Cloudflare R2 Object Storage
+CF_ACCOUNT_ID=<your-cf-account-id>
+CF_R2_BUCKET=<your-r2-bucket>
+CF_R2_ACCESS_KEY_ID=<your-r2-access-key>
+CF_R2_SECRET_ACCESS_KEY=<your-r2-secret-key>
 ```
 
 ## Available Adapters
 
 | Adapter | Use Case | Required Package |
 |---|---|---|
-| `cli-json-db`               | Local CLI, development     | None |
-| `cli-aws-dynamo-db`         | Local CLI, development     | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
-| `sender-aws-dynamo-db`      | AWS Lambda, Sender         | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
-| `receiver-aws-dynamo-db`    | AWS Lambda, Receiver       | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
-| `sender-azure-cosmos-db`    | Azure Functions, Sender    | `@azure/cosmos` |
-| `receiver-azure-cosmos-db`  | Azure Functions, Receiver  | `@azure/cosmos` |
+| `cli-json-db`               | Local CLI, development        | None |
+| `cli-aws-dynamo-db`         | Local CLI, development        | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
+| `sender-aws-dynamo-db`      | AWS Lambda, Sender            | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
+| `receiver-aws-dynamo-db`    | AWS Lambda, Receiver          | `@aws-sdk/client-dynamodb` `@aws-sdk/lib-dynamodb` |
+| `sender-azure-cosmos-db`    | Azure Functions, Sender       | `@azure/cosmos` |
+| `receiver-azure-cosmos-db`  | Azure Functions, Receiver     | `@azure/cosmos` |
+| `sender-cf-d1-db`           | Cloudflare Workers, Sender    | None |
+| `receiver-cf-d1-db`         | Cloudflare Workers, Receiver  | None |
 
 
 ## Choosing an Adapter
@@ -93,8 +104,8 @@ N42_STORAGE_ADAPTER=<your_storage_adapter>
 | AWS Lambda         | Cloud | Receiver | `receiver-aws-dynamo-db`   | `receiver-aws-s3`     |
 | Azure Functions    | Cloud | Sender   | `sender-azure-cosmos-db`   | 🚧                    |
 | Azure Functions    | Cloud | Receiver | `receiver-azure-cosmos-db` | `receiver-azure-blob` |
-| Cloudflare Workers | Cloud | Sender   | `sender-aws-dynamo-db`     | 🚧                    |
-| Cloudflare Workers | Cloud | Receiver | `receiver-aws-dynamo-db`   | `receiver-aws-s3`     |
+| Cloudflare Workers | Cloud | Sender   | `sender-cf-d1-db`          | 🚧                    |
+| Cloudflare Workers | Cloud | Receiver | `receiver-cf-d1-db`        | `receiver-cf-r2`      |
 
 ## Writing a Custom Adapter
 

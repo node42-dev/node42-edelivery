@@ -8,9 +8,19 @@
 
 import fs   from 'fs';
 import path from 'path';
-import { getUserSchematronDir } from '../cli/paths.js';
+import { Worker }               from 'worker_threads';
 import { SVRL_NS }              from '../core/constants.js';
 import { c, C }                 from '../cli/color.js'
+
+import { 
+  getFileSize,
+  isFileLargerThanMB 
+} from '../core/utils.js';
+
+import { 
+  getUserSchematronDir,
+  getSaxonWorkerPath 
+} from '../cli/paths.js';
 
 import { 
   N42Error, 
@@ -18,6 +28,26 @@ import {
 }  from '../core/error.js';
 
 const LOCATION_RE = /Q\{[^}]+\}/g;
+const SAXON_WORKER_PATH = getSaxonWorkerPath();
+
+function runTransformInWorker(xslPath, docSource) {
+  return new Promise((resolve, reject) => {
+    const worker = new Worker(SAXON_WORKER_PATH, {
+      workerData: { xslPath, docSource },
+    });
+    worker.once('message', msg => {
+      if (msg.ok) {
+        resolve(msg.svrlStr);
+      } else { 
+        reject(new Error(msg.message));
+      }
+    });
+    worker.once('error',   reject);
+    worker.once('exit', code => {
+      if (code !== 0) reject(new Error(`Worker exited with code ${code}`));
+    });
+  });
+}
 
 function getAllSchematronXsls(ruleSet) {
   const srcDir  = path.join(getUserSchematronDir(), ruleSet);
@@ -63,7 +93,7 @@ export async function convertSchematronToXsl(context, inputFile) {
     sourceText:     inputText,
     destination:    'serialized',
   }, 'sync');
-  context.spinner.done(`Converted ${path.basename(inputFile)}`);
+  context.spinner.done(`Converted: ${path.basename(inputFile)}`);
 
   context.spinner.start("Writing XSL File");
   const xslFile = inputFile.replace('.sch', '.xsl');
@@ -84,11 +114,26 @@ export async function convertSchematronToXsl(context, inputFile) {
 export async function validateDocument(context, document, opts = {}) {
   const { simplifyLocations = true, includeWarnings = false, ruleSet = 'billing' } = opts;
 
-  const xslPaths = context.schematron?.length
-    ? context.schematron.map(p => path.resolve(p))
-    : getAllSchematronXsls(ruleSet);
+  let docStr;
+  if (!document) {
+    const docPath = context.document;
+    const docSize = getFileSize(docPath);
 
-  const docStr = Buffer.isBuffer(document) ? document.toString('utf-8') : document;
+    const isLargeFile = isFileLargerThanMB(docPath, 10);
+    if (isLargeFile) {
+      throw new N42Error(N42ErrorCode.OPERATION_FAILED, { details: `Document too large (${docSize})` });
+    } 
+
+    context.spinner.update(`Loading Document (${docSize})`);
+    document = fs.readFileSync(docPath);
+    docStr = Buffer.isBuffer(document) ? document.toString('utf-8') : document;
+    context.spinner.done(`Loaded Document (${docSize})`);
+  }
+  else {
+    docStr = document;
+  }
+
+  const docSource = { sourceText: docStr };
 
   // Dynamically import SaxonJS (optional dep — skip validation if unavailable)
   const SaxonJS = await checkSaxonJS(context);
@@ -100,21 +145,24 @@ export async function validateDocument(context, document, opts = {}) {
   const { DOMParser } = await import('@xmldom/xmldom');
   const allErrors = [];
 
+  context.spinner.start(`Loading Schematrons`);
+  const xslPaths = context.schematron?.length
+    ? context.schematron.map(p => path.resolve(p))
+    : getAllSchematronXsls(ruleSet);
+  context.spinner.done(`Loaded Ruleset: ${ruleSet}`);
+
+  context.spinner.start('Validating Document', true);
   for (const xslPath of xslPaths) {
+    context.spinner?.update?.(`Validating against: ${path.basename(xslPath, '.json')}`);
+    
     if (!fs.existsSync(xslPath)) {
       allErrors.push({ message: `Schematron file not found: ${xslPath}`, code: 'CONFIG', severity: 'fatal' });
       continue;
     }
 
     let svrlStr;
-    try {
-      const result = SaxonJS.transform({
-        stylesheetFileName: xslPath,
-        sourceText:         docStr,
-        destination:        'serialized',
-      }, 'sync');
-      svrlStr = result.principalResult;
-    } catch(e) {
+    try { svrlStr = await runTransformInWorker(xslPath, docSource); } 
+    catch(e) {
       allErrors.push({ message: `Schematron transform failed: ${e.message}`, code: 'CONFIG', severity: 'fatal' });
       continue;
     }
@@ -144,6 +192,8 @@ export async function validateDocument(context, document, opts = {}) {
       });
     }
   }
+
+  context.spinner.done('Validated Document', allErrors.length === 0);
 
   return allErrors;
 }

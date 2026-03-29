@@ -45,7 +45,7 @@ export const N42ErrorCode = Object.freeze({
   // Documents
   DOC_INVALID:          { code: 7021,  area: 'APP',  http: 400, message: 'Document is invalid: {details}',             retryable: false },
   DOC_NOT_FOUND:        { code: 21108, area: 'ART',  http: 400, message: 'Document not found: {details}',              retryable: false },
-
+  
   // Certificates
   CERT_EXPIRED:         { code: 11103, area: 'CERT', http: 400, message: 'Certificate has expired: {details}',         retryable: false },
   CERT_NOT_TRUSTED:     { code: 11104, area: 'CERT', http: 400, message: 'Certificate is not trusted: {details}',      retryable: false },
@@ -64,6 +64,8 @@ export const N42ErrorCode = Object.freeze({
   
   // Transaction
   TRANSACTION_FAILED:   { code: 12108, area: 'TRX',   http: 400,  message: 'Transaction failed: {details}',            retryable: false },
+
+  OPERATION_FAILED:     { code: 12109, area: 'OP',   http: 400,  message: 'Operation failed: {details}',               retryable: false },
 
   // AWS
   SSO_SESSION_EXPIRED: { code: 9036,  area: "AUTH",  http: 500,  message: "SSO session expired: {details}",             retryable: false},

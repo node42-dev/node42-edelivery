@@ -289,7 +289,7 @@ Production deployment requires proper certificate lifecycle management, secure k
 
 ## License
 
-Available under **GPL-3.0-only** for open source use. \
+Available under **AGPL-3.0-only** for open source use. \
 Commercial licenses available for proprietary and enterprise deployments. \
 Contact [support@node42.dev](mailto:support@node42.dev) for details.
 
