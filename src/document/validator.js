@@ -111,6 +111,26 @@ export async function convertSchematronToXsl(context, inputFile) {
   console.log(`${c(C.BOLD, 'To generate the SEF file, run:')}\nnpx xslt3 -xsl:${xslFile} -export:${jsonFile} -nogo`);
 }
 
+async function validateWithExternalValidator(context, validatorUrl, apiKey, documentKey) {
+  const response = await fetch(validatorUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type':             'application/xml',
+      'X-Api-Key':                apiKey,
+      'X-Node42-Transaction-Id':  context.id,
+      'X-Node42-Document-Key':    documentKey,
+    },
+  });
+
+  if (!response.ok) {
+    throw new N42Error(N42ErrorCode.VALIDATION_ERROR, { 
+      details: `Validator returned ${response.status}` 
+    });
+  }
+
+  return await response.json();
+}
+
 export async function validateDocument(context, document, opts = {}) {
   const { simplifyLocations = true, includeWarnings = false, ruleSet = 'billing' } = opts;
 
@@ -121,6 +141,12 @@ export async function validateDocument(context, document, opts = {}) {
 
     const isLargeFile = isFileLargerThanMB(docPath, 10);
     if (isLargeFile) {
+      /*
+      const validatorUrl = runtimeEnv.get('N42_VALIDATOR_URL');
+      const apiKey = runtimeEnv.get('N42_API_KEY_VALIDATOR');
+      const documentKey = getDocumentInKey(context.id);
+      const result = validateWithExternalValidator(context, validatorUrl, apiKey, documentKey);
+      */
       throw new N42Error(N42ErrorCode.OPERATION_FAILED, { details: `Document too large (${docSize})` });
     } 
 

@@ -88,9 +88,14 @@ export function signAs4Envelope(context, attachmentId, envelope, messaging, body
 
   const signedInfoStr = c14nSignedInfo(signedInfo);
 
+  let senderKey = context.senderKey;
+  if (!context.senderKey.includes('-----BEGIN')) {
+    senderKey = fs.readFileSync(context.senderKey)
+  }
   const keyPass = context.keyPass || undefined;
+  
   const privateKey = crypto.createPrivateKey({
-    key: fs.readFileSync(context.senderKey),
+    key: senderKey,
     passphrase: keyPass,
   });
 

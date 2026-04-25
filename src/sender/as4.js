@@ -379,8 +379,15 @@ export async function sendAs4Message(context, headers, body) {
       continue;
     }
 
-    const resBody = await res.array?.() ?? Buffer.from(await res.arrayBuffer());
-    context.timer.mark('Received Response');
+    let resBody;
+    try {
+      resBody = Buffer.from(await res.arrayBuffer());
+      context.timer.mark('Received Response');
+    } catch(e) {
+      context.spinner.fail('Sending Message');
+      lastError = new N42Error(N42ErrorCode.SERVER_ERROR, { details: `Failed to read response: ${e.message}` }, { retryable: true });
+      continue;
+    }
     
     if (!resBody.length || res.status >= 400) {
       const retryable = res.status >= 500;

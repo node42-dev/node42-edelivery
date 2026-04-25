@@ -36,11 +36,11 @@ export async function sendDocument(context, document) {
   const docStr = docBuf.toString('utf-8');
 
   // ── Extract identifiers from SBDH ────────────────────────────────────────
-  context.spinner.start('Extracting Identifiers');
   const docXml = parser.parseFromString(docStr, 'application/xml');
   //console.log(format(docStr, { indentation: "  ", collapseContent: true }));
 
   // Extract sender ID
+  context.spinner.start('Extracting Sender');
   const senderEls = docXml.getElementsByTagName('Sender');
   if (!context.senderId && senderEls.length) {
     const idEl     = senderEls[0].getElementsByTagName('Identifier')[0];
@@ -49,8 +49,10 @@ export async function sendDocument(context, document) {
       context.senderId = `${authority}::${idEl.textContent.trim()}`;
     }
   }
+  context.spinner.done('Extracted Sender');
 
   // Extract receiver ID
+  context.spinner.start('Extracting Receiver');
   const receiverEls = docXml.getElementsByTagName('Receiver');
   if (!context.receiverId && receiverEls.length) {
     const idEl       = receiverEls[0].getElementsByTagName('Identifier')[0];
@@ -59,21 +61,41 @@ export async function sendDocument(context, document) {
       context.receiverId = `${authority}::${idEl.textContent.trim()}`;
     }
   }
+  context.spinner.done('Extracted Receiver')
 
   // Extract scope values
+  context.spinner.start('Extracting Scopes')
   const scopes = docXml.getElementsByTagName('Scope');
   for (let i = 0; i < scopes.length; i++) {
     const type  = scopes[i].getElementsByTagName('Type')[0]?.textContent;
     const value = scopes[i].getElementsByTagName('InstanceIdentifier')[0]?.textContent;
-    if (type === 'COUNTRY_C1' && !context.senderCountry)  context.senderCountry = value;
-    if (type === 'DOCUMENTID' && !context.documentType)   context.documentType  = value;
-    if (type === 'PROCESSID'  && !context.processId)      context.processId     = value;
+
+    if (type === 'COUNTRY_C1' && !context.senderCountry) context.senderCountry = value;
+    if (type === 'DOCUMENTID' && !context.documentType && value) context.documentType  = value;
+    if (type === 'PROCESSID'  && !context.processId && value) context.processId     = value;
   }
 
-  context.receiverCountry = lookupCountry(context.receiverId);
-  
-  context.spinner.done('Extracted Identifiers');
+  if (!context.documentType) {
+    const invoiceEl      = docXml.documentElement;
+    const baseNs         = invoiceEl?.namespaceURI?.trim();
+    const localName      = invoiceEl?.localName?.trim();
+    const customizationId = docXml.getElementsByTagName('cbc:CustomizationID')[0]?.textContent?.trim();
 
+    if (baseNs && localName && customizationId) {
+      context.documentType = `${baseNs}::${localName}##${customizationId}::2.1`;
+    }
+  }
+
+  if (!context.processId) {
+    context.processId = docXml.getElementsByTagName('cbc:ProfileID')[0]?.textContent?.trim();
+  }
+  context.spinner.done('Extracted Scopes')
+
+  // Extract Country
+  context.spinner.start('Extracting Country')
+  context.receiverCountry = lookupCountry(context.receiverId);
+  context.spinner.done('Extracted Country')
+  
   // ── SBDH Strip / Wrap ─────────────────────────────────────────────────────
   let workDoc = docXml;
   /*    
@@ -104,6 +126,14 @@ export async function sendDocument(context, document) {
     docBytes = docBuf;
   }
 
+  if (context.persist) {
+    const outDir = getUserTransactionsDir();
+    fs.writeFileSync(
+      path.join(outDir, `${context.id}_wrapped_document.xml`),
+      docBytes
+    );
+  }
+
   // ── Validate ──────────────────────────────────────────────────────────────
   /*
     Validate the prepared document against schema and business rules.
@@ -117,7 +147,6 @@ export async function sendDocument(context, document) {
     documents, while still preserving full validation traceability.
   */
   context.validationErrors = await validateDocument(context, docBytes);
-
   context.timer.mark('Validated Document');
 
   // ── SMP lookup ────────────────────────────────────────────────────────────
@@ -163,7 +192,10 @@ export async function sendDocument(context, document) {
 
   let senderCert = null;
   const certPath = context.cert ?? 'cert.pem';
-  if (fs.existsSync(certPath) && !fs.statSync(certPath).isDirectory()) {
+
+  if (certPath.includes('-----BEGIN')) {
+    senderCert = Buffer.from(certPath);
+  } else if (fs.existsSync(certPath) && !fs.statSync(certPath).isDirectory()) {
     senderCert = fs.readFileSync(certPath);
   } else {
     const fallback = path.join(getUserCertsDir(), 'cert.pem');
@@ -179,13 +211,17 @@ export async function sendDocument(context, document) {
 
   let senderKey = null;
   const keyPath = context.key ?? 'key.pem';
-  if (fs.existsSync(keyPath) && !fs.statSync(keyPath).isDirectory()) {
+
+  if (keyPath.includes('-----BEGIN')) {
+    senderKey = Buffer.from(keyPath);
+  }
+  else if (fs.existsSync(keyPath) && !fs.statSync(keyPath).isDirectory()) {
     senderKey = keyPath;
   } else {
     const fallback = path.join(getUserCertsDir(), 'key.pem');
     if (fs.existsSync(fallback)) {
       context.key = fallback;
-      senderKey   = fallback;
+      senderKey   = fs.readFileSync(fallback);;
     }
   }
   if (!senderKey) {

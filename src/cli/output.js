@@ -167,6 +167,7 @@ export function printArtefacts(context) {
 
   const linkContext = `\u001B]8;;file://${path.join(dir,`${context.id}_context.json`)}\u0007View\u001B]8;;\u0007`;
   const linkDocument = `\u001B]8;;file://${path.join(dir,`${context.id}_document.xml`)}\u0007View\u001B]8;;\u0007`;
+  const linkWrappedDocument = `\u001B]8;;file://${path.join(dir,`${context.id}_wrapped_document.xml`)}\u0007View\u001B]8;;\u0007`;
   const linkValidation = `\u001B]8;;file://${path.join(dir,`${context.id}_validation.json`)}\u0007View\u001B]8;;\u0007`;
   const linkMessageHeaders = `\u001B]8;;file://${path.join(dir,`${context.id}_message_headers.json`)}\u0007View\u001B]8;;\u0007`;
   const linkMessageBody = `\u001B]8;;file://${path.join(dir,`${context.id}_message_body.txt`)}\u0007View\u001B]8;;\u0007`;
@@ -181,6 +182,7 @@ export function printArtefacts(context) {
   console.log(`${c(C.BOLD, "  ARTEFACTS: OUTBOUND")}`);
   console.log(`  Context            [${c(C.BLUE, linkContext)}]`);
   console.log(`  Document           [${c(C.BLUE, linkDocument)}]`);
+  console.log(`  Wrapped Document   [${c(C.BLUE, linkWrappedDocument)}]`);
   console.log(`  Validation         [${c(C.BLUE, linkValidation)}]`);
   console.log(`  SOAP Envelope      [${c(C.BLUE, linkEnvelope)}]`);
   console.log(`  Signing Input      [${c(C.BLUE, linkSigningInput)}]`);

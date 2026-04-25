@@ -19,6 +19,8 @@ const parser = new DOMParser();
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function findServiceUrl(serviceUrls, documentType) {
+  if (!documentType) return serviceUrls[0] ?? null;
+  
   return serviceUrls.find(url => {
     const decoded = decodeURIComponent(url);
     const segment = decoded.split('/services/')[1] ?? '';

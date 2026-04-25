@@ -47,6 +47,27 @@ function fmt(n) {
 
 // ── Build invoice ─────────────────────────────────────────────────────────────
 
+function parseParticipant(participantId, fallbackScheme) {
+  if (!participantId) {
+    return { scheme: fallbackScheme, value: participantId };
+  }
+
+  let value = participantId.trim();
+  let scheme = fallbackScheme;
+
+  if (value.includes('::')) {
+    value = value.split('::')[1];
+  }
+
+  if (value.includes(':')) {
+    const parts = value.split(':', 2);
+    scheme = parts[0];
+    value = parts[1];
+  }
+
+  return { scheme, value };
+}
+
 export function buildDocument(context) {
   context.spinner.start('Loading Datafile');
 
@@ -80,8 +101,8 @@ export function buildDocument(context) {
   }
   const grossTotal = netTotal + vatTotal;
 
-  const senderEndpoint   = context.senderId?.includes('::')   ? context.senderId.split('::')[1]   : context.senderId;
-  const receiverEndpoint = context.receiverId?.includes('::') ? context.receiverId.split('::')[1] : context.receiverId;
+  const senderEndpoint   = parseParticipant(context.senderId, s.endpoint_scheme);
+  const receiverEndpoint = parseParticipant(context.receiverId, b.endpoint_scheme);
   const sellerCountry    = context.senderCountry ?? s.country ?? 'SE';
 
   const UBL   = context.documentType.split('::')[0];
@@ -100,7 +121,7 @@ export function buildDocument(context) {
   // Seller
   const supplier = cac(doc, 'AccountingSupplierParty');
   const party    = cac(doc, 'Party');
-  const ep = cbc(doc, 'EndpointID', senderEndpoint, { schemeID: s.endpoint_scheme });
+  const ep = cbc(doc, 'EndpointID', senderEndpoint.value, { schemeID: senderEndpoint.scheme });
   party.appendChild(ep);
   const pn = cac(doc, 'PartyName'); pn.appendChild(cbc(doc, 'Name', s.name)); party.appendChild(pn);
   const addr = cac(doc, 'PostalAddress');
@@ -123,7 +144,7 @@ export function buildDocument(context) {
   // Buyer
   const customer = cac(doc, 'AccountingCustomerParty');
   const bparty   = cac(doc, 'Party');
-  const bep = cbc(doc, 'EndpointID', receiverEndpoint, { schemeID: b.endpoint_scheme });
+  const bep = cbc(doc, 'EndpointID', receiverEndpoint.value, { schemeID: receiverEndpoint.scheme });
   bparty.appendChild(bep);
   const bpn = cac(doc, 'PartyName'); bpn.appendChild(cbc(doc, 'Name', b.name)); bparty.appendChild(bpn);
   const baddr = cac(doc, 'PostalAddress');
@@ -217,7 +238,7 @@ export function stripSbdh(docNode) {
 export function wrapInSbdh(context, docNode) {
   const localName  = docNode.localName;
   const namespace  = docNode.namespaceURI;
-  const docTypeVer = context.documentType.split(':').pop();
+  const docTypeVer = context.documentType?.split(':').pop() ?? '2.1';
 
   const doc  = parser.parseFromString(`<StandardBusinessDocument xmlns="${SBDH_NS}"/>`, 'application/xml');
   const sbd  = doc.documentElement;

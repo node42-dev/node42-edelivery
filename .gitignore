@@ -6,10 +6,11 @@ dist/
 
 # Local data
 local/
+docs/local/
 
 # GitHub
 scripts/*
-!scripts/send-test.sh
+!scripts/send-peppol.sh
 
 # Deployment Artifacts
 *.zip
