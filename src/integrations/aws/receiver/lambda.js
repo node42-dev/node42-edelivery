@@ -7,9 +7,9 @@
 */
 
 import path from 'path';
-import { N42Context } from '../../../../model/context.js';
-import { N42Environment } from '../../../../model/environment.js';
-import { receiveAs4Message } from '../../../../receiver/as4.js';
+import { N42Context } from '../../../model/context.js';
+import { N42Environment } from '../../../model/environment.js';
+import { receiveAs4Message } from '../../../receiver/as4.js';
 
 
 export const handler = async (event) => {

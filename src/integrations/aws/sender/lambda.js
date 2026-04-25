@@ -7,10 +7,10 @@
 */
 
 import path  from 'path';
-import { N42Context } from '../../../../model/context.js';
-import { N42Environment } from '../../../../model/environment.js';
-import { createSoapHttpResponse, detectPayloadType } from '../../../../core/utils.js'
-import { sendDocument } from '../../../../sender/sender.js';
+import { N42Context } from '../../../model/context.js';
+import { N42Environment } from '../../../model/environment.js';
+import { createSoapHttpResponse, detectPayloadType } from '../../../core/utils.js'
+import { sendDocument } from '../../../sender/sender.js';
 
 import { 
   createStorage, 
